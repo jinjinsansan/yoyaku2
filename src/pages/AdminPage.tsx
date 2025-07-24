@@ -48,11 +48,16 @@ export const AdminPage: React.FC = () => {
 
   // カウンセラー一覧取得
   useEffect(() => {
+    console.log('useEffect start', activeTab);
     if (activeTab === 'counselors') {
       (async () => {
-        const { data, error } = await supabase.from('counselors').select('id, user_id, bio, specialties, profile_url, user:users(id, name, email)');
-        console.log('counselors data:', data, 'error:', error);
-        if (!error) setCounselors(data || []);
+        try {
+          const { data, error } = await supabase.from('counselors').select('id, user_id, bio, specialties, profile_url, user:users(id, name, email)');
+          console.log('counselors data:', data, 'error:', error);
+          if (!error) setCounselors(data || []);
+        } catch (e) {
+          console.error('supabase query failed', e);
+        }
       })();
     }
   }, [activeTab, refresh]);
@@ -112,6 +117,7 @@ export const AdminPage: React.FC = () => {
     }
   };
 
+  console.log('rendering AdminPage');
   return (
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
