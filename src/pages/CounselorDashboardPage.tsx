@@ -344,6 +344,4 @@ export const CounselorDashboardPage: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default CounselorDashboardPage; 
+}; 
