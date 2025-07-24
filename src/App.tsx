@@ -9,6 +9,7 @@ import { PaymentPage } from './pages/PaymentPage';
 import { ChatPage } from './pages/ChatPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { AdminPage } from './pages/AdminPage';
+import { CounselorDashboardPage } from './pages/CounselorDashboardPage';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/chat/:bookingId" element={<ChatPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/counselor-dashboard" element={<CounselorDashboardPage />} />
         </Routes>
       </Layout>
     </Router>

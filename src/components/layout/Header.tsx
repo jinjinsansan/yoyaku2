@@ -56,6 +56,15 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onAuthClick }) => {
                 マイページ
               </button>
             )}
+            {/* カウンセラーのみ表示 */}
+            {isAuthenticated && user && user.user_metadata?.role === 'counselor' && (
+              <button
+                onClick={() => window.location.href = '/counselor-dashboard'}
+                className="text-cyan-600 hover:text-cyan-800 font-bold border border-cyan-200 rounded px-3 py-1 ml-2 bg-cyan-50"
+              >
+                カウンセラーダッシュボード
+              </button>
+            )}
             {/* マスター管理者のみ表示 */}
             {isAuthenticated && user && user.email === 'goldbenchan@gmail.com' && (
               <button

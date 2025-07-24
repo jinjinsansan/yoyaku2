@@ -60,7 +60,7 @@ export const AdminPage: React.FC = () => {
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email,
         password,
-        user_metadata: { name },
+        user_metadata: { name, role: 'counselor' },
         email_confirm: true
       });
       if (authError) throw new Error(authError.message);
