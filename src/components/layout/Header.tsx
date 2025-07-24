@@ -56,6 +56,15 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onAuthClick }) => {
                 マイページ
               </button>
             )}
+            {/* マスター管理者のみ表示 */}
+            {isAuthenticated && user && user.email === 'goldbenchan@gmail.com' && (
+              <button
+                onClick={() => window.location.href = '/admin'}
+                className="text-red-600 hover:text-red-800 font-bold border border-red-200 rounded px-3 py-1 ml-2 bg-red-50"
+              >
+                マスター管理画面
+              </button>
+            )}
             <button 
               onClick={() => {/* 料金セクションにスクロール */}}
               className="text-slate-600 hover:text-indigo-600 font-medium transition-colors"
