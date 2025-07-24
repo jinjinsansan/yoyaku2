@@ -51,6 +51,7 @@ export const AdminPage: React.FC = () => {
     if (activeTab === 'counselors') {
       (async () => {
         const { data, error } = await supabase.from('counselors').select('id, user_id, bio, specialties, profile_url, user:users(id, name, email)');
+        console.log('counselors data:', data, 'error:', error);
         if (!error) setCounselors(data || []);
       })();
     }
@@ -141,6 +142,7 @@ export const AdminPage: React.FC = () => {
                 {success && <div className="text-green-600 text-sm">{success}</div>}
               </form>
               <h3 className="text-lg font-bold mb-2">カウンセラー一覧</h3>
+              {(() => { console.log('counselors state:', counselors); return null; })()}
               <div className="space-y-2">
                 {counselors.map(c => (
                   <div key={c.id} className="flex items-center justify-between bg-slate-100 rounded px-4 py-2">
