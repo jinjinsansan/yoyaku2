@@ -28,25 +28,6 @@ export const AdminPage: React.FC = () => {
   const [counselors, setCounselors] = useState<any[]>([]);
   const [refresh, setRefresh] = useState(false);
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center">読み込み中...</div>
-      </div>
-    );
-  }
-  // 管理者以外はアクセス不可
-  if (!isAuthenticated || user?.email !== 'goldbenchan@gmail.com') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Card className="text-center p-8">
-          <h2 className="text-xl font-bold text-red-600 mb-4">アクセス権限がありません</h2>
-          <p className="text-slate-600">このページはマスター管理者のみアクセス可能です。</p>
-        </Card>
-      </div>
-    );
-  }
-
   // カウンセラー一覧取得
   useEffect(() => {
     console.log('useEffect entered');
@@ -118,6 +99,25 @@ export const AdminPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">読み込み中...</div>
+      </div>
+    );
+  }
+  // 管理者以外はアクセス不可
+  if (!isAuthenticated || user?.email !== 'goldbenchan@gmail.com') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <Card className="text-center p-8">
+          <h2 className="text-xl font-bold text-red-600 mb-4">アクセス権限がありません</h2>
+          <p className="text-slate-600">このページはマスター管理者のみアクセス可能です。</p>
+        </Card>
+      </div>
+    );
+  }
 
   console.log('rendering AdminPage');
   return (
