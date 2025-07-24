@@ -49,9 +49,10 @@ export const AdminPage: React.FC = () => {
 
   // カウンセラー一覧取得
   useEffect(() => {
-    console.log('useEffect start', activeTab);
+    console.log('useEffect entered');
     if (activeTab === 'counselors') {
       (async () => {
+        console.log('before supabase query');
         try {
           const { data, error } = await supabase.from('counselors').select('id, user_id, bio, specialties, profile_url, user:users(id, name, email)');
           console.log('counselors data:', data, 'error:', error);
