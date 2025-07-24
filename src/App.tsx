@@ -8,6 +8,7 @@ import { BookingPage } from './pages/BookingPage';
 import { PaymentPage } from './pages/PaymentPage';
 import { ChatPage } from './pages/ChatPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { AdminPage } from './pages/AdminPage';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/payment/:id" element={<PaymentPage />} />
           <Route path="/chat/:bookingId" element={<ChatPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </Layout>
     </Router>
