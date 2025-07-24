@@ -14,19 +14,26 @@ const MENU = [
 ];
 
 export const AdminPage: React.FC = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('counselors');
   // フォーム用state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // フォーム用
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   // カウンセラー一覧
   const [counselors, setCounselors] = useState<any[]>([]);
   const [refresh, setRefresh] = useState(false);
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">読み込み中...</div>
+      </div>
+    );
+  }
   // 管理者以外はアクセス不可
   if (!isAuthenticated || user?.email !== 'goldbenchan@gmail.com') {
     return (
