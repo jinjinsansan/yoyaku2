@@ -11,9 +11,8 @@ REM ====== 変更をgitに追加 ======
 echo [2/4] git add .
 git add .
 REM ====== コミット ======
-echo [3/4] git commit
-set /p msg="コミットメッセージを入力してください（例: auto: デプロイ）: "
-git commit -m "%msg%"
+echo [3/4] git commit（自動メッセージ）
+git commit -m "auto: デプロイ用自動コミット"
 REM ====== プッシュ ======
 echo [4/4] git push
 git push
