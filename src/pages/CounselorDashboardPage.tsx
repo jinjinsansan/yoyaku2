@@ -168,8 +168,10 @@ export const CounselorDashboardPage: React.FC = () => {
   }, [activeTab, user, isCounselor]);
 
   // 初期値取得（初回のみ）
+  const [initialized, setInitialized] = useState(false);
+  
   useEffect(() => {
-    if (user && isCounselor === true) {
+    if (user && isCounselor === true && !initialized) {
       (async () => {
         const { data, error } = await supabase.from('counselors').select('profile_image, bio, specialties').eq('user_id', user.id).maybeSingle();
         if (data) {
@@ -186,9 +188,10 @@ export const CounselorDashboardPage: React.FC = () => {
         if (error) {
           console.error('プロフィール初期値取得APIエラー', error);
         }
+        setInitialized(true);
       })();
     }
-  }, [user, isCounselor]); // isCounselorの変更時のみ実行
+  }, [user, isCounselor, initialized]); // 初回のみ実行
 
   // カウンセラー以外はアクセス不可
   if (!isAuthenticated || isCounselor === false) {
@@ -255,6 +258,8 @@ export const CounselorDashboardPage: React.FC = () => {
       
       setProfileMsg('プロフィールを更新しました');
       setProfile(p => ({ ...p, password: '' }));
+      // 保存成功後は初期化フラグをリセットして、保存したデータを維持
+      setInitialized(false);
     } catch (err: any) {
       setProfileMsg('エラー: ' + err.message);
     } finally {
