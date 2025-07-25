@@ -20,15 +20,33 @@ const MENU = [
 export const CounselorDashboardPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
+  const [isCounselor, setIsCounselor] = useState<boolean | null>(null);
 
-  // カウンセラー以外はアクセス不可（仮: user_metadata.role === 'counselor' で判定予定）
-  if (!isAuthenticated || user?.user_metadata?.role !== 'counselor') {
+  // カウンセラー判定: counselorsテーブルに自分のuser_idが存在するか
+  useEffect(() => {
+    if (user) {
+      (async () => {
+        const { data, error } = await supabase.from('counselors').select('id').eq('user_id', user.id).single();
+        setIsCounselor(!!data);
+      })();
+    }
+  }, [user]);
+
+  // カウンセラー以外はアクセス不可
+  if (!isAuthenticated || isCounselor === false) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Card className="text-center p-8">
           <h2 className="text-xl font-bold text-red-600 mb-4">アクセス権限がありません</h2>
           <p className="text-slate-600">このページはカウンセラーのみアクセス可能です。</p>
         </Card>
+      </div>
+    );
+  }
+  if (isCounselor === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">判定中...</div>
       </div>
     );
   }
@@ -139,8 +157,8 @@ export const CounselorDashboardPage: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'memo' && authUser) {
       (async () => {
-        const { data, error } = await supabase.from('counselors').select('memo').eq('user_id', authUser.id).single();
-        if (!error && data) setMemo(data.memo || '');
+        const { data, error } = await supabase.from('counselors').select('bio').eq('user_id', authUser.id).single();
+        if (!error && data) setMemo(data.bio || '');
       })();
     }
   }, [activeTab, authUser]);
@@ -149,7 +167,8 @@ export const CounselorDashboardPage: React.FC = () => {
     setMemoLoading(true);
     setMemoMsg('');
     try {
-      await supabase.from('counselors').update({ memo }).eq('user_id', authUser.id);
+      if (!authUser) throw new Error('ユーザー情報が取得できません');
+      await supabase.from('counselors').update({ bio: memo }).eq('user_id', authUser.id);
       setMemoMsg('保存しました');
     } catch (err: any) {
       setMemoMsg('エラー: ' + err.message);
@@ -161,16 +180,15 @@ export const CounselorDashboardPage: React.FC = () => {
   // 初期値取得
   useEffect(() => {
     (async () => {
-      if (user) {
-        const { data, error } = await supabase.from('counselors').select('profile_image, bio, specialties').eq('user_id', user.id).single();
-        if (data) {
-          setProfile(p => ({
-            ...p,
-            profileImage: data.profile_image || '',
-            bio: data.bio || '',
-            specialties: (data.specialties || []).join(',')
-          }));
-        }
+      if (!user) return;
+      const { data, error } = await supabase.from('counselors').select('profile_image, bio, specialties').eq('user_id', user.id).single();
+      if (data) {
+        setProfile(p => ({
+          ...p,
+          profileImage: data.profile_image || '',
+          bio: data.bio || '',
+          specialties: (data.specialties || []).join(',')
+        }));
       }
     })();
   }, [user]);
@@ -181,8 +199,9 @@ export const CounselorDashboardPage: React.FC = () => {
     setProfileLoading(true);
     setProfileMsg('');
     try {
+      if (!user) throw new Error('ユーザー情報が取得できません');
       // Auth情報更新
-      if (profile.email !== user?.email || profile.name !== user?.user_metadata?.name) {
+      if (profile.email !== user.email || profile.name !== user.user_metadata?.name) {
         await supabase.auth.updateUser({
           email: profile.email,
           data: { name: profile.name }
