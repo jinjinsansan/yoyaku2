@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useBookings } from '../hooks/useBookings';
 import { Card } from '../components/ui/Card';
@@ -7,6 +7,7 @@ import { Input } from '../components/ui/Input';
 import { Textarea } from '../components/ui/Textarea';
 import { supabase } from '../lib/supabase';
 import { formatCurrency, formatDate } from '../lib/utils';
+import { Upload, X, Image as ImageIcon } from 'lucide-react';
 
 const MENU = [
   { key: 'profile', label: 'プロフィール編集' },
@@ -21,6 +22,7 @@ export const CounselorDashboardPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [isCounselor, setIsCounselor] = useState<boolean | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // プロフィール編集用state
   const [profile, setProfile] = useState({
@@ -33,6 +35,8 @@ export const CounselorDashboardPage: React.FC = () => {
   });
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileMsg, setProfileMsg] = useState('');
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [imageUploading, setImageUploading] = useState(false);
 
   // 予約管理用
   const [counselorBookings, setCounselorBookings] = useState<any[]>([]);
@@ -175,6 +179,9 @@ export const CounselorDashboardPage: React.FC = () => {
             bio: data.bio || '',
             specialties: (data.specialties || []).join(',')
           }));
+          if (data.profile_image) {
+            setImagePreview(data.profile_image);
+          }
         }
         if (error) {
           console.error('プロフィール初期値取得APIエラー', error);
@@ -250,6 +257,97 @@ export const CounselorDashboardPage: React.FC = () => {
     }
   };
 
+  // 画像アップロード処理
+  const handleImageUpload = async (file: File) => {
+    if (!user) return;
+    
+    // ファイル形式チェック
+    if (!file.type.startsWith('image/')) {
+      setProfileMsg('画像ファイルを選択してください');
+      return;
+    }
+    
+    // ファイルサイズチェック（5MB以下）
+    if (file.size > 5 * 1024 * 1024) {
+      setProfileMsg('ファイルサイズは5MB以下にしてください');
+      return;
+    }
+
+    setImageUploading(true);
+    setProfileMsg('');
+
+    try {
+      // ファイル名をユニークにする
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `profile-images/${fileName}`;
+
+      // Supabase Storageにアップロード
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // 公開URLを取得
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // プロフィールを更新
+      setProfile(prev => ({ ...prev, profileImage: publicUrl }));
+      setImagePreview(publicUrl);
+      setProfileMsg('画像をアップロードしました');
+
+    } catch (error: any) {
+      console.error('画像アップロードエラー:', error);
+      
+      // バケットが存在しない場合のエラーハンドリング
+      if (error.message?.includes('bucket') || error.message?.includes('not found')) {
+        setProfileMsg('画像アップロード機能の設定が完了していません。管理者にお問い合わせください。');
+      } else {
+        setProfileMsg('画像のアップロードに失敗しました: ' + error.message);
+      }
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  // ファイル選択処理
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleImageUpload(file);
+    }
+  };
+
+  // ドラッグ&ドロップ処理
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    if (file) {
+      handleImageUpload(file);
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+  };
+
+  // 画像削除処理
+  const handleRemoveImage = () => {
+    setProfile(prev => ({ ...prev, profileImage: '' }));
+    setImagePreview('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -273,7 +371,78 @@ export const CounselorDashboardPage: React.FC = () => {
                 <Input label="名" value={profile.name} onChange={e => setProfile(p => ({ ...p, name: e.target.value }))} required />
                 <Input label="メールアドレス" type="email" value={profile.email} onChange={e => setProfile(p => ({ ...p, email: e.target.value }))} required />
                 <Input label="パスワード（変更時のみ入力）" type="password" value={profile.password} onChange={e => setProfile(p => ({ ...p, password: e.target.value }))} />
-                <Input label="プロフィール画像URL" value={profile.profileImage} onChange={e => setProfile(p => ({ ...p, profileImage: e.target.value }))} />
+                
+                {/* プロフィール画像アップロード */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-slate-700">プロフィール画像</label>
+                  
+                  {/* 画像プレビュー */}
+                  {(imagePreview || profile.profileImage) && (
+                    <div className="relative inline-block">
+                      <img 
+                        src={imagePreview || profile.profileImage} 
+                        alt="プロフィール画像" 
+                        className="w-32 h-32 object-cover rounded-lg border-2 border-slate-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                  
+                  {/* アップロードエリア */}
+                  <div
+                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                      imageUploading 
+                        ? 'border-slate-300 bg-slate-50' 
+                        : 'border-slate-300 hover:border-slate-400 hover:bg-slate-50'
+                    }`}
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                      disabled={imageUploading}
+                    />
+                    
+                    {imageUploading ? (
+                      <div className="space-y-2">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-600 mx-auto"></div>
+                        <p className="text-sm text-slate-600">アップロード中...</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <ImageIcon className="w-8 h-8 text-slate-400 mx-auto" />
+                        <div>
+                          <p className="text-sm text-slate-600">
+                            クリックして画像を選択、またはドラッグ&ドロップ
+                          </p>
+                          <p className="text-xs text-slate-500 mt-1">
+                            PNG, JPG, GIF (5MB以下)
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="mt-2"
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          画像を選択
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
                 <Textarea label="自己紹介" value={profile.bio} onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))} />
                 <Input label="専門分野（カンマ区切り）" value={profile.specialties} onChange={e => setProfile(p => ({ ...p, specialties: e.target.value }))} />
                 <Button type="submit" loading={profileLoading}>保存</Button>
