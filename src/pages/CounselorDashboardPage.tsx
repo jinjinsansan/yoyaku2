@@ -157,7 +157,7 @@ export const CounselorDashboardPage: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'memo' && user && isCounselor === true) {
       (async () => {
-        const { data, error } = await supabase.from('counselors').select('bio').eq('user_id', user.id).maybeSingle();
+        const { data, error } = await supabase.from('counselors').select('bio').eq('user_id', user.id).limit(1).maybeSingle();
         if (!error && data) setMemo(data.bio || '');
         if (error) {
           setMemo('');
@@ -167,11 +167,9 @@ export const CounselorDashboardPage: React.FC = () => {
     }
   }, [activeTab, user, isCounselor]);
 
-  // 初期値取得（初回のみ）
-  const [initialized, setInitialized] = useState(false);
-  
+  // 初期値取得
   useEffect(() => {
-    if (user && isCounselor === true && !initialized) {
+    if (user && isCounselor === true) {
       (async () => {
         const { data, error } = await supabase.from('counselors').select('profile_image, bio, specialties').eq('user_id', user.id).limit(1).maybeSingle();
         if (data) {
@@ -188,7 +186,6 @@ export const CounselorDashboardPage: React.FC = () => {
         if (error) {
           console.error('プロフィール初期値取得APIエラー', error);
         }
-        setInitialized(true);
       })();
     }
   }, [user, isCounselor]); // userまたはisCounselorが変更された時のみ実行
