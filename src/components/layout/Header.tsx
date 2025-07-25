@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, Menu, User, LogOut, MessageCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../hooks/useAuth';
+import { supabase } from '../../lib/supabase';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -10,6 +11,22 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onMenuClick, onAuthClick }) => {
   const { user, signOut, isAuthenticated } = useAuth();
+  const [isCounselor, setIsCounselor] = useState<boolean | null>(null);
+
+  // カウンセラー判定: counselorsテーブルに自分のuser_idが存在するか
+  useEffect(() => {
+    if (user) {
+      (async () => {
+        const { data, error } = await supabase.from('counselors').select('id').eq('user_id', user.id).limit(1);
+        setIsCounselor(Array.isArray(data) && data.length > 0);
+        if (error) {
+          console.error('counselors判定APIエラー', error);
+        }
+      })();
+    } else {
+      setIsCounselor(false);
+    }
+  }, [user]);
 
   const handleAuthAction = async () => {
     if (isAuthenticated) {
@@ -57,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onAuthClick }) => {
               </button>
             )}
             {/* カウンセラーのみ表示 */}
-            {isAuthenticated && user && user.user_metadata?.role === 'counselor' && (
+            {isAuthenticated && user && isCounselor === true && (
               <button
                 onClick={() => window.location.href = '/counselor-dashboard'}
                 className="text-cyan-600 hover:text-cyan-800 font-bold border border-cyan-200 rounded px-3 py-1 ml-2 bg-cyan-50"

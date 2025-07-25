@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, User, Heart, CreditCard, HelpCircle, LayoutDashboard } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../hooks/useAuth';
+import { supabase } from '../../lib/supabase';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -9,7 +10,23 @@ interface MobileMenuProps {
 }
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const [isCounselor, setIsCounselor] = useState<boolean | null>(null);
+
+  // カウンセラー判定: counselorsテーブルに自分のuser_idが存在するか
+  useEffect(() => {
+    if (user) {
+      (async () => {
+        const { data, error } = await supabase.from('counselors').select('id').eq('user_id', user.id).limit(1);
+        setIsCounselor(Array.isArray(data) && data.length > 0);
+        if (error) {
+          console.error('counselors判定APIエラー', error);
+        }
+      })();
+    } else {
+      setIsCounselor(false);
+    }
+  }, [user]);
 
   if (!isOpen) return null;
 
@@ -58,6 +75,19 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             >
               <LayoutDashboard className="w-5 h-5" />
               <span>マイページ</span>
+            </button>
+          )}
+          {/* カウンセラーのみ表示 */}
+          {isAuthenticated && user && isCounselor === true && (
+            <button
+              onClick={() => {
+                window.location.href = '/counselor-dashboard';
+                onClose();
+              }}
+              className="flex items-center space-x-3 p-3 text-cyan-700 hover:bg-cyan-50 rounded-lg transition-colors border border-cyan-200"
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              <span className="font-semibold">カウンセラーダッシュボード</span>
             </button>
           )}
           <button
