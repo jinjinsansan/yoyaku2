@@ -22,6 +22,35 @@ export const CounselorDashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [isCounselor, setIsCounselor] = useState<boolean | null>(null);
 
+  // プロフィール編集用state
+  const [profile, setProfile] = useState({
+    name: user?.user_metadata?.name || '',
+    email: user?.email || '',
+    password: '',
+    profileImage: '',
+    bio: '',
+    specialties: '',
+  });
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileMsg, setProfileMsg] = useState('');
+
+  // 予約管理用
+  const [counselorBookings, setCounselorBookings] = useState<any[]>([]);
+
+  // チャット管理用
+  const [chatRooms, setChatRooms] = useState<any[]>([]);
+
+  // ユーザー一覧用
+  const [userList, setUserList] = useState<any[]>([]);
+
+  // 売上用
+  const [sales, setSales] = useState({ total: 0, count: 0, monthly: {} });
+
+  // メモ書き用
+  const [memo, setMemo] = useState('');
+  const [memoLoading, setMemoLoading] = useState(false);
+  const [memoMsg, setMemoMsg] = useState('');
+
   // カウンセラー判定: counselorsテーブルに自分のuser_idが存在するか
   useEffect(() => {
     if (user) {
@@ -33,6 +62,8 @@ export const CounselorDashboardPage: React.FC = () => {
           console.error('counselors判定APIエラー', error);
         }
       })();
+    } else {
+      setIsCounselor(false);
     }
   }, [user]);
 
@@ -55,38 +86,23 @@ export const CounselorDashboardPage: React.FC = () => {
     );
   }
 
-  // プロフィール編集用state
-  const [profile, setProfile] = useState({
-    name: user?.user_metadata?.name || '',
-    email: user?.email || '',
-    password: '',
-    profileImage: '',
-    bio: '',
-    specialties: '',
-  });
-  const [profileLoading, setProfileLoading] = useState(false);
-  const [profileMsg, setProfileMsg] = useState('');
-
-  // 予約管理用
-  const { user: authUser } = useAuth();
-  const [counselorBookings, setCounselorBookings] = useState<any[]>([]);
+  // 予約管理用useEffect
   useEffect(() => {
-    if (activeTab === 'bookings' && authUser) {
+    if (activeTab === 'bookings' && user) {
       (async () => {
         const { data, error } = await supabase
           .from('bookings')
           .select('*, user:users(*), counselor:counselors(*)')
-          .eq('counselor_id', authUser.id)
+          .eq('counselor_id', user.id)
           .order('scheduled_at', { ascending: false });
         if (!error) setCounselorBookings(data || []);
       })();
     }
-  }, [activeTab, authUser]);
+  }, [activeTab, user]);
 
-  // チャット管理用
-  const [chatRooms, setChatRooms] = useState<any[]>([]);
+  // チャット管理用useEffect
   useEffect(() => {
-    if (activeTab === 'chat' && authUser) {
+    if (activeTab === 'chat' && user) {
       (async () => {
         const { data, error } = await supabase
           .from('chat_rooms')
@@ -94,22 +110,21 @@ export const CounselorDashboardPage: React.FC = () => {
           .order('created_at', { ascending: false });
         if (!error && data) {
           // カウンセラー自身の予約のみ抽出
-          const filtered = data.filter((room: any) => room.booking?.counselor_id === authUser.id);
+          const filtered = data.filter((room: any) => room.booking?.counselor_id === user.id);
           setChatRooms(filtered);
         }
       })();
     }
-  }, [activeTab, authUser]);
+  }, [activeTab, user]);
 
-  // ユーザー一覧用
-  const [userList, setUserList] = useState<any[]>([]);
+  // ユーザー一覧用useEffect
   useEffect(() => {
-    if (activeTab === 'users' && authUser) {
+    if (activeTab === 'users' && user) {
       (async () => {
         const { data, error } = await supabase
           .from('bookings')
           .select('user:users(id, name, email)')
-          .eq('counselor_id', authUser.id);
+          .eq('counselor_id', user.id);
         if (!error && data) {
           // ユーザーごとに予約回数を集計
           const userMap: Record<string, { id: string, name: string, email: string, count: number }> = {};
@@ -126,12 +141,11 @@ export const CounselorDashboardPage: React.FC = () => {
         }
       })();
     }
-  }, [activeTab, authUser]);
+  }, [activeTab, user]);
 
-  // 売上用
-  const [sales, setSales] = useState({ total: 0, count: 0, monthly: {} });
+  // 売上用useEffect
   useEffect(() => {
-    if (activeTab === 'sales' && authUser) {
+    if (activeTab === 'sales' && user) {
       (async () => {
         const { data, error } = await supabase
           .from('payments')
@@ -139,7 +153,7 @@ export const CounselorDashboardPage: React.FC = () => {
           .eq('status', 'completed');
         if (!error && data) {
           // カウンセラー自身の売上のみ集計
-          const filtered = data.filter((p: any) => p.booking?.counselor_id === authUser.id);
+          const filtered = data.filter((p: any) => p.booking?.counselor_id === user.id);
           const total = filtered.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
           const count = filtered.length;
           // 月別集計
@@ -152,16 +166,13 @@ export const CounselorDashboardPage: React.FC = () => {
         }
       })();
     }
-  }, [activeTab, authUser]);
+  }, [activeTab, user]);
 
-  // メモ書き用
-  const [memo, setMemo] = useState('');
-  const [memoLoading, setMemoLoading] = useState(false);
-  const [memoMsg, setMemoMsg] = useState('');
+  // メモ書き用useEffect
   useEffect(() => {
-    if (activeTab === 'memo' && authUser) {
+    if (activeTab === 'memo' && user) {
       (async () => {
-        const { data, error } = await supabase.from('counselors').select('bio').eq('user_id', authUser.id).maybeSingle();
+        const { data, error } = await supabase.from('counselors').select('bio').eq('user_id', user.id).maybeSingle();
         if (!error && data) setMemo(data.bio || '');
         if (error) {
           setMemo('');
@@ -169,21 +180,7 @@ export const CounselorDashboardPage: React.FC = () => {
         }
       })();
     }
-  }, [activeTab, authUser]);
-  const handleMemoSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMemoLoading(true);
-    setMemoMsg('');
-    try {
-      if (!authUser) throw new Error('ユーザー情報が取得できません');
-      await supabase.from('counselors').update({ bio: memo }).eq('user_id', authUser.id);
-      setMemoMsg('保存しました');
-    } catch (err: any) {
-      setMemoMsg('エラー: ' + err.message);
-    } finally {
-      setMemoLoading(false);
-    }
-  };
+  }, [activeTab, user]);
 
   // 初期値取得
   useEffect(() => {
@@ -203,6 +200,22 @@ export const CounselorDashboardPage: React.FC = () => {
       }
     })();
   }, [user]);
+
+  // メモ保存
+  const handleMemoSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMemoLoading(true);
+    setMemoMsg('');
+    try {
+      if (!user) throw new Error('ユーザー情報が取得できません');
+      await supabase.from('counselors').update({ bio: memo }).eq('user_id', user.id);
+      setMemoMsg('保存しました');
+    } catch (err: any) {
+      setMemoMsg('エラー: ' + err.message);
+    } finally {
+      setMemoLoading(false);
+    }
+  };
 
   // プロフィール保存
   const handleProfileSave = async (e: React.FormEvent) => {
