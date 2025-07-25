@@ -4,6 +4,7 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { supabase } from '../lib/supabase';
+import { Textarea } from '../components/ui/Textarea';
 
 const MENU = [
   { key: 'stats', label: '売上統計', disabled: true },
@@ -30,53 +31,72 @@ export const AdminPage: React.FC = () => {
 
   // カウンセラー一覧取得
   useEffect(() => {
-    console.log('useEffect entered');
     if (activeTab === 'counselors') {
       (async () => {
-        console.log('before supabase query');
-        try {
-          const { data, error } = await supabase.from('counselors').select('id, user_id, bio, specialties, profile_url, user:users(id, name, email)');
-          console.log('counselors data:', data, 'error:', error);
-          if (!error) setCounselors(data || []);
-        } catch (e) {
-          console.error('supabase query failed', e);
-        }
+        const { data, error } = await supabase
+          .from('counselors')
+          .select('id, user_id, bio, specialties, profile_image, profile_url, hourly_rate, is_active, rating, review_count, user:users(id, name, email, avatar, phone), created_at, updated_at');
+        if (!error) setCounselors(data || []);
       })();
     }
   }, [activeTab, refresh]);
 
-  // カウンセラー登録処理
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
+  // 編集用state
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editProfile, setEditProfile] = useState<any>({});
+  const [editLoading, setEditLoading] = useState(false);
+  const [editMsg, setEditMsg] = useState('');
+
+  // 編集開始
+  const handleEdit = (c: any) => {
+    setEditingId(c.id);
+    setEditProfile({
+      name: c.user?.name || '',
+      email: c.user?.email || '',
+      phone: c.user?.phone || '',
+      avatar: c.user?.avatar || '',
+      profileImage: c.profile_image || '',
+      bio: c.bio || '',
+      specialties: (c.specialties || []).join(','),
+      profileUrl: c.profile_url || '',
+      hourlyRate: c.hourly_rate || 0,
+      isActive: c.is_active,
+      reviewCount: c.review_count || 0,
+      rating: c.rating || 0,
+    });
+    setEditMsg('');
+  };
+
+  // 編集保存
+  const handleEditSave = async (id: string, userId: string) => {
+    setEditLoading(true);
+    setEditMsg('');
     try {
-      // 1. Supabase Authにユーザー登録
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email,
-        password,
-        user_metadata: { name, role: 'counselor' },
-        email_confirm: true
-      });
-      if (authError) throw new Error(authError.message);
-      const userId = authData.user?.id;
-      // 2. counselorsテーブルに登録
-      const { error: dbError } = await supabase.from('counselors').insert({
-        user_id: userId,
-        bio: '',
-        specialties: [],
-        profile_url: '',
-        is_active: true
-      });
-      if (dbError) throw new Error(dbError.message);
-      setSuccess('カウンセラーを登録しました');
-      setName(''); setEmail(''); setPassword('');
+      // usersテーブル更新
+      await supabase.from('users').update({
+        name: editProfile.name,
+        email: editProfile.email,
+        phone: editProfile.phone,
+        avatar: editProfile.avatar
+      }).eq('id', userId);
+      // counselorsテーブル更新
+      await supabase.from('counselors').update({
+        profile_image: editProfile.profileImage,
+        bio: editProfile.bio,
+        specialties: editProfile.specialties.split(',').map((s: string) => s.trim()),
+        profile_url: editProfile.profileUrl,
+        hourly_rate: Number(editProfile.hourlyRate),
+        is_active: editProfile.isActive,
+        review_count: Number(editProfile.reviewCount),
+        rating: Number(editProfile.rating)
+      }).eq('id', id);
+      setEditMsg('保存しました');
+      setEditingId(null);
       setRefresh(r => !r);
     } catch (err: any) {
-      setError(err.message);
+      setEditMsg('エラー: ' + err.message);
     } finally {
-      setLoading(false);
+      setEditLoading(false);
     }
   };
 
@@ -140,26 +160,85 @@ export const AdminPage: React.FC = () => {
         <div>
           {activeTab === 'counselors' && (
             <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">カウンセラー登録</h2>
-              <form className="space-y-4 mb-6" onSubmit={handleRegister}>
-                <Input label="カウンセラー名" value={name} onChange={e => setName(e.target.value)} required />
-                <Input label="メールアドレス" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
-                <Input label="パスワード" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
-                <Button type="submit" loading={loading}>登録</Button>
-                {error && <div className="text-red-600 text-sm">{error}</div>}
-                {success && <div className="text-green-600 text-sm">{success}</div>}
-              </form>
-              <h3 className="text-lg font-bold mb-2">カウンセラー一覧</h3>
-              {(() => { console.log('counselors state:', counselors); return null; })()}
-              <div className="space-y-2">
+              <h2 className="text-xl font-semibold mb-4">カウンセラー一覧</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {counselors.map(c => (
-                  <div key={c.id} className="flex items-center justify-between bg-slate-100 rounded px-4 py-2">
-                    <div>
-                      <div className="font-semibold">{c.user?.name || '不明'}</div>
-                      <div className="text-xs text-slate-500">{c.user?.email || '不明'}</div>
-                    </div>
-                    <Button variant="outline" color="red" onClick={() => handleDelete(c)} disabled={loading}>削除</Button>
-                  </div>
+                  <Card key={c.id} className="p-4 flex flex-col gap-4 md:flex-row md:items-start">
+                    {editingId === c.id ? (
+                      <form className="flex-1 flex flex-col gap-2" onSubmit={e => { e.preventDefault(); handleEditSave(c.id, c.user.id); }}>
+                        <div className="flex flex-col md:flex-row gap-4">
+                          <div className="flex-shrink-0 flex flex-col items-center gap-2">
+                            {editProfile.profileImage ? (
+                              <img src={editProfile.profileImage} alt={editProfile.name} className="w-20 h-20 rounded-full object-cover border" />
+                            ) : (
+                              <div className="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center">
+                                <span className="text-slate-400">No Image</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 grid grid-cols-1 gap-2">
+                            <Input label="名前" value={editProfile.name} onChange={e => setEditProfile((p: any) => ({ ...p, name: e.target.value }))} required />
+                            <Input label="メールアドレス" type="email" value={editProfile.email} onChange={e => setEditProfile((p: any) => ({ ...p, email: e.target.value }))} required />
+                            <Input label="電話番号" value={editProfile.phone || ''} onChange={e => setEditProfile((p: any) => ({ ...p, phone: e.target.value }))} />
+                            <Input label="アバターURL" value={editProfile.avatar || ''} onChange={e => setEditProfile((p: any) => ({ ...p, avatar: e.target.value }))} />
+                          </div>
+                        </div>
+                        <Input label="プロフィール画像URL" value={editProfile.profileImage} onChange={e => setEditProfile((p: any) => ({ ...p, profileImage: e.target.value }))} />
+                        <Input label="自己紹介" value={editProfile.bio} onChange={e => setEditProfile((p: any) => ({ ...p, bio: e.target.value }))} />
+                        <Input label="専門分野（カンマ区切り）" value={editProfile.specialties} onChange={e => setEditProfile((p: any) => ({ ...p, specialties: e.target.value }))} />
+                        <Input label="プロフィールURL" value={editProfile.profileUrl} onChange={e => setEditProfile((p: any) => ({ ...p, profileUrl: e.target.value }))} />
+                        <Input label="時給" type="number" value={editProfile.hourlyRate} onChange={e => setEditProfile((p: any) => ({ ...p, hourlyRate: e.target.value }))} />
+                        <Input label="レビュー数" type="number" value={editProfile.reviewCount || 0} onChange={e => setEditProfile((p: any) => ({ ...p, reviewCount: e.target.value }))} />
+                        <Input label="評価" type="number" value={editProfile.rating || 0} onChange={e => setEditProfile((p: any) => ({ ...p, rating: e.target.value }))} />
+                        <label className="flex items-center gap-2">
+                          <input type="checkbox" checked={editProfile.isActive} onChange={e => setEditProfile((p: any) => ({ ...p, isActive: e.target.checked }))} />
+                          有効
+                        </label>
+                        <div className="flex gap-2 mt-2">
+                          <Button type="submit" loading={editLoading}>保存</Button>
+                          <Button type="button" variant="outline" onClick={() => setEditingId(null)}>キャンセル</Button>
+                        </div>
+                        {editMsg && <div className="text-sm mt-1">{editMsg}</div>}
+                      </form>
+                    ) : (
+                      <div className="flex flex-col md:flex-row gap-4 w-full">
+                        <div className="flex-shrink-0 flex flex-col items-center gap-2">
+                          {c.profile_image ? (
+                            <img src={c.profile_image} alt={c.user?.name} className="w-20 h-20 rounded-full object-cover border" />
+                          ) : (
+                            <div className="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center">
+                              <span className="text-slate-400">No Image</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 flex flex-col gap-1">
+                          <div className="font-bold text-lg">{c.user?.name}</div>
+                          <div className="text-xs text-slate-500 break-all">{c.user?.email}</div>
+                          <div className="text-xs text-slate-500 break-all">電話: {c.user?.phone || '-'}</div>
+                          <div className="text-xs text-slate-500 break-all">アバター: {c.user?.avatar || '-'}</div>
+                          <div className="text-sm text-slate-600 mt-2">{c.bio}</div>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {(c.specialties || []).map((s: string, i: number) => (
+                              <span key={i} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">{s}</span>
+                            ))}
+                          </div>
+                          {c.profile_url && (
+                            <a href={c.profile_url} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-600 underline break-all">プロフィールサイト</a>
+                          )}
+                          <div className="flex flex-wrap gap-2 mt-2 text-xs text-slate-500">
+                            <span>レビュー数: {c.review_count}</span>
+                            <span>評価: {c.rating}</span>
+                            <span>有効: {c.is_active ? '○' : '×'}</span>
+                            <span>時給: {c.hourly_rate}円</span>
+                          </div>
+                          <div className="text-xs text-slate-400 mt-1">作成日: {c.created_at?.slice(0,10)} / 更新日: {c.updated_at?.slice(0,10)}</div>
+                          <div className="flex gap-2 mt-2">
+                            <Button size="sm" onClick={() => handleEdit(c)}>編集</Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </Card>
                 ))}
               </div>
             </Card>
