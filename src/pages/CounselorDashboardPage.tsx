@@ -67,28 +67,9 @@ export const CounselorDashboardPage: React.FC = () => {
     }
   }, [user]);
 
-  // カウンセラー以外はアクセス不可
-  if (!isAuthenticated || isCounselor === false) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Card className="text-center p-8">
-          <h2 className="text-xl font-bold text-red-600 mb-4">アクセス権限がありません</h2>
-          <p className="text-slate-600">このページはカウンセラーのみアクセス可能です。</p>
-        </Card>
-      </div>
-    );
-  }
-  if (isCounselor === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center">判定中...</div>
-      </div>
-    );
-  }
-
   // 予約管理用useEffect
   useEffect(() => {
-    if (activeTab === 'bookings' && user) {
+    if (activeTab === 'bookings' && user && isCounselor === true) {
       (async () => {
         const { data, error } = await supabase
           .from('bookings')
@@ -98,11 +79,11 @@ export const CounselorDashboardPage: React.FC = () => {
         if (!error) setCounselorBookings(data || []);
       })();
     }
-  }, [activeTab, user]);
+  }, [activeTab, user, isCounselor]);
 
   // チャット管理用useEffect
   useEffect(() => {
-    if (activeTab === 'chat' && user) {
+    if (activeTab === 'chat' && user && isCounselor === true) {
       (async () => {
         const { data, error } = await supabase
           .from('chat_rooms')
@@ -115,11 +96,11 @@ export const CounselorDashboardPage: React.FC = () => {
         }
       })();
     }
-  }, [activeTab, user]);
+  }, [activeTab, user, isCounselor]);
 
   // ユーザー一覧用useEffect
   useEffect(() => {
-    if (activeTab === 'users' && user) {
+    if (activeTab === 'users' && user && isCounselor === true) {
       (async () => {
         const { data, error } = await supabase
           .from('bookings')
@@ -141,11 +122,11 @@ export const CounselorDashboardPage: React.FC = () => {
         }
       })();
     }
-  }, [activeTab, user]);
+  }, [activeTab, user, isCounselor]);
 
   // 売上用useEffect
   useEffect(() => {
-    if (activeTab === 'sales' && user) {
+    if (activeTab === 'sales' && user && isCounselor === true) {
       (async () => {
         const { data, error } = await supabase
           .from('payments')
@@ -166,11 +147,11 @@ export const CounselorDashboardPage: React.FC = () => {
         }
       })();
     }
-  }, [activeTab, user]);
+  }, [activeTab, user, isCounselor]);
 
   // メモ書き用useEffect
   useEffect(() => {
-    if (activeTab === 'memo' && user) {
+    if (activeTab === 'memo' && user && isCounselor === true) {
       (async () => {
         const { data, error } = await supabase.from('counselors').select('bio').eq('user_id', user.id).maybeSingle();
         if (!error && data) setMemo(data.bio || '');
@@ -180,26 +161,46 @@ export const CounselorDashboardPage: React.FC = () => {
         }
       })();
     }
-  }, [activeTab, user]);
+  }, [activeTab, user, isCounselor]);
 
   // 初期値取得
   useEffect(() => {
-    (async () => {
-      if (!user) return;
-      const { data, error } = await supabase.from('counselors').select('profile_image, bio, specialties').eq('user_id', user.id).maybeSingle();
-      if (data) {
-        setProfile(p => ({
-          ...p,
-          profileImage: data.profile_image || '',
-          bio: data.bio || '',
-          specialties: (data.specialties || []).join(',')
-        }));
-      }
-      if (error) {
-        console.error('プロフィール初期値取得APIエラー', error);
-      }
-    })();
-  }, [user]);
+    if (user && isCounselor === true) {
+      (async () => {
+        const { data, error } = await supabase.from('counselors').select('profile_image, bio, specialties').eq('user_id', user.id).maybeSingle();
+        if (data) {
+          setProfile(p => ({
+            ...p,
+            profileImage: data.profile_image || '',
+            bio: data.bio || '',
+            specialties: (data.specialties || []).join(',')
+          }));
+        }
+        if (error) {
+          console.error('プロフィール初期値取得APIエラー', error);
+        }
+      })();
+    }
+  }, [user, isCounselor]);
+
+  // カウンセラー以外はアクセス不可
+  if (!isAuthenticated || isCounselor === false) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <Card className="text-center p-8">
+          <h2 className="text-xl font-bold text-red-600 mb-4">アクセス権限がありません</h2>
+          <p className="text-slate-600">このページはカウンセラーのみアクセス可能です。</p>
+        </Card>
+      </div>
+    );
+  }
+  if (isCounselor === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">判定中...</div>
+      </div>
+    );
+  }
 
   // メモ保存
   const handleMemoSave = async (e: React.FormEvent) => {
