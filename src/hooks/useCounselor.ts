@@ -28,18 +28,22 @@ export const useCounselor = (id: string) => {
         .single();
 
       if (error) throw error;
+      
+      if (!data.user) {
+        throw new Error('カウンセラーのユーザー情報が見つかりません');
+      }
 
       const formattedCounselor: Counselor = {
         id: data.id,
         userId: data.user_id,
         user: {
-          id: data.user.id,
-          email: data.user.email,
-          name: data.user.name,
-          phone: data.user.phone,
-          avatar: data.user.avatar,
-          createdAt: new Date(data.user.created_at),
-          updatedAt: new Date(data.user.updated_at)
+          id: data.user?.id || '',
+          email: data.user?.email || '',
+          name: data.user?.name || '',
+          phone: data.user?.phone || '',
+          avatar: data.user?.avatar || '',
+          createdAt: new Date(data.user?.created_at || Date.now()),
+          updatedAt: new Date(data.user?.updated_at || Date.now())
         },
         profileImage: data.profile_image,
         bio: data.bio,

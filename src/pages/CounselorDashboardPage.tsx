@@ -167,7 +167,7 @@ export const CounselorDashboardPage: React.FC = () => {
     }
   }, [activeTab, user, isCounselor]);
 
-  // 初期値取得
+  // 初期値取得（初回のみ）
   useEffect(() => {
     if (user && isCounselor === true) {
       (async () => {
@@ -188,7 +188,7 @@ export const CounselorDashboardPage: React.FC = () => {
         }
       })();
     }
-  }, [user, isCounselor]);
+  }, [user, isCounselor]); // isCounselorの変更時のみ実行
 
   // カウンセラー以外はアクセス不可
   if (!isAuthenticated || isCounselor === false) {
@@ -243,11 +243,16 @@ export const CounselorDashboardPage: React.FC = () => {
         await supabase.auth.updateUser({ password: profile.password });
       }
       // counselorsテーブル更新
-      await supabase.from('counselors').update({
+      const { error: updateError } = await supabase.from('counselors').update({
         profile_image: profile.profileImage,
         bio: profile.bio,
         specialties: profile.specialties.split(',').map(s => s.trim())
       }).eq('user_id', user.id);
+      
+      if (updateError) {
+        throw updateError;
+      }
+      
       setProfileMsg('プロフィールを更新しました');
       setProfile(p => ({ ...p, password: '' }));
     } catch (err: any) {
