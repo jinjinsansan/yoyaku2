@@ -26,8 +26,12 @@ export const CounselorDashboardPage: React.FC = () => {
   useEffect(() => {
     if (user) {
       (async () => {
-        const { data, error } = await supabase.from('counselors').select('id').eq('user_id', user.id).single();
-        setIsCounselor(!!data);
+        const { data, error } = await supabase.from('counselors').select('id').eq('user_id', user.id).limit(1);
+        console.log('user.id:', user.id, 'counselors data:', data, 'error:', error);
+        setIsCounselor(Array.isArray(data) && data.length > 0);
+        if (error) {
+          console.error('counselors判定APIエラー', error);
+        }
       })();
     }
   }, [user]);
@@ -157,8 +161,12 @@ export const CounselorDashboardPage: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'memo' && authUser) {
       (async () => {
-        const { data, error } = await supabase.from('counselors').select('bio').eq('user_id', authUser.id).single();
+        const { data, error } = await supabase.from('counselors').select('bio').eq('user_id', authUser.id).maybeSingle();
         if (!error && data) setMemo(data.bio || '');
+        if (error) {
+          setMemo('');
+          console.error('メモ取得APIエラー', error);
+        }
       })();
     }
   }, [activeTab, authUser]);
@@ -181,7 +189,7 @@ export const CounselorDashboardPage: React.FC = () => {
   useEffect(() => {
     (async () => {
       if (!user) return;
-      const { data, error } = await supabase.from('counselors').select('profile_image, bio, specialties').eq('user_id', user.id).single();
+      const { data, error } = await supabase.from('counselors').select('profile_image, bio, specialties').eq('user_id', user.id).maybeSingle();
       if (data) {
         setProfile(p => ({
           ...p,
@@ -189,6 +197,9 @@ export const CounselorDashboardPage: React.FC = () => {
           bio: data.bio || '',
           specialties: (data.specialties || []).join(',')
         }));
+      }
+      if (error) {
+        console.error('プロフィール初期値取得APIエラー', error);
       }
     })();
   }, [user]);
