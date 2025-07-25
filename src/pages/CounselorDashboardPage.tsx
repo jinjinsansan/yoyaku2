@@ -173,7 +173,7 @@ export const CounselorDashboardPage: React.FC = () => {
   useEffect(() => {
     if (user && isCounselor === true && !initialized) {
       (async () => {
-        const { data, error } = await supabase.from('counselors').select('profile_image, bio, specialties').eq('user_id', user.id).maybeSingle();
+        const { data, error } = await supabase.from('counselors').select('profile_image, bio, specialties').eq('user_id', user.id).limit(1).maybeSingle();
         if (data) {
           setProfile(p => ({
             ...p,
@@ -191,7 +191,7 @@ export const CounselorDashboardPage: React.FC = () => {
         setInitialized(true);
       })();
     }
-  }, [user, isCounselor, initialized]); // 初回のみ実行
+  }, [user, isCounselor]); // userまたはisCounselorが変更された時のみ実行
 
   // カウンセラー以外はアクセス不可
   if (!isAuthenticated || isCounselor === false) {
@@ -258,8 +258,6 @@ export const CounselorDashboardPage: React.FC = () => {
       
       setProfileMsg('プロフィールを更新しました');
       setProfile(p => ({ ...p, password: '' }));
-      // 保存成功後は初期化フラグをリセットして、保存したデータを維持
-      setInitialized(false);
     } catch (err: any) {
       setProfileMsg('エラー: ' + err.message);
     } finally {
