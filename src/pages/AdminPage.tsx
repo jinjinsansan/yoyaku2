@@ -58,7 +58,7 @@ export const AdminPage: React.FC = () => {
       profileImage: c.profile_image || '',
       bio: c.bio || '',
       specialties: Array.isArray(c.specialties) && c.specialties.length > 0 
-        ? c.specialties.join(',') 
+        ? c.specialties.filter((s: string) => s && s.trim().length > 0).join(',') 
         : '',
       profileUrl: c.profile_url || '',
       hourlyRate: c.hourly_rate || 0,

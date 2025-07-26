@@ -48,7 +48,9 @@ export const useSchedules = (counselorId?: string) => {
           },
           profileImage: schedule.counselor.profile_image,
           bio: schedule.counselor.bio,
-          specialties: schedule.counselor.specialties,
+          specialties: Array.isArray(schedule.counselor.specialties) && schedule.counselor.specialties.length > 0 
+            ? schedule.counselor.specialties.filter(s => s && s.trim().length > 0)
+            : [],
           profileUrl: schedule.counselor.profile_url,
           hourlyRate: schedule.counselor.hourly_rate,
           isActive: schedule.counselor.is_active,

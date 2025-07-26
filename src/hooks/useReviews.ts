@@ -61,7 +61,9 @@ export const useReviews = (counselorId?: string) => {
           },
           profileImage: review.counselor.profile_image,
           bio: review.counselor.bio,
-          specialties: review.counselor.specialties,
+          specialties: Array.isArray(review.counselor.specialties) && review.counselor.specialties.length > 0 
+            ? review.counselor.specialties.filter(s => s && s.trim().length > 0)
+            : [],
           profileUrl: review.counselor.profile_url,
           hourlyRate: review.counselor.hourly_rate,
           isActive: review.counselor.is_active,

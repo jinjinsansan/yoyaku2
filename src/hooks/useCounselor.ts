@@ -47,7 +47,9 @@ export const useCounselor = (id: string) => {
         },
         profileImage: data.profile_image,
         bio: data.bio,
-        specialties: data.specialties,
+        specialties: Array.isArray(data.specialties) && data.specialties.length > 0 
+          ? data.specialties.filter(s => s && s.trim().length > 0)
+          : [],
         profileUrl: data.profile_url,
         hourlyRate: data.hourly_rate,
         isActive: data.is_active,

@@ -62,7 +62,9 @@ export const useBookings = () => {
           },
           profileImage: booking.counselor.profile_image,
           bio: booking.counselor.bio,
-          specialties: booking.counselor.specialties,
+          specialties: Array.isArray(booking.counselor.specialties) && booking.counselor.specialties.length > 0 
+            ? booking.counselor.specialties.filter(s => s && s.trim().length > 0)
+            : [],
           profileUrl: booking.counselor.profile_url,
           hourlyRate: booking.counselor.hourly_rate,
           isActive: booking.counselor.is_active,

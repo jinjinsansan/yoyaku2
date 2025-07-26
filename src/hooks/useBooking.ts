@@ -58,7 +58,9 @@ export const useBooking = (bookingId: string) => {
           },
           profileImage: data.counselor.profile_image,
           bio: data.counselor.bio,
-          specialties: data.counselor.specialties,
+          specialties: Array.isArray(data.counselor.specialties) && data.counselor.specialties.length > 0 
+            ? data.counselor.specialties.filter(s => s && s.trim().length > 0)
+            : [],
           profileUrl: data.counselor.profile_url,
           hourlyRate: data.counselor.hourly_rate,
           isActive: data.counselor.is_active,

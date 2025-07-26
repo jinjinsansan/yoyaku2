@@ -39,7 +39,9 @@ export const useCounselors = () => {
         },
         profileImage: counselor.profile_image,
         bio: counselor.bio,
-        specialties: counselor.specialties,
+        specialties: Array.isArray(counselor.specialties) && counselor.specialties.length > 0 
+          ? counselor.specialties.filter(s => s && s.trim().length > 0)
+          : [],
         profileUrl: counselor.profile_url,
         hourlyRate: counselor.hourly_rate,
         isActive: counselor.is_active,

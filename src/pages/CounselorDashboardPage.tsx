@@ -26,8 +26,8 @@ export const CounselorDashboardPage: React.FC = () => {
 
   // プロフィール編集用state
   const [profile, setProfile] = useState({
-    name: user?.user_metadata?.name || '',
-    email: user?.email || '',
+    name: '',
+    email: '',
     password: '',
     profileImage: '',
     bio: '',
@@ -176,10 +176,12 @@ export const CounselorDashboardPage: React.FC = () => {
           console.log('初期値取得 data.specialties:', data.specialties);
           setProfile(p => ({
             ...p,
+            name: user.user_metadata?.name || '',
+            email: user.email || '',
             profileImage: data.profile_image || '',
             bio: data.bio || '',
             specialties: Array.isArray(data.specialties) && data.specialties.length > 0 
-              ? data.specialties.join(',') 
+              ? data.specialties.filter(s => s && s.trim().length > 0).join(',') 
               : ''
           }));
           if (data.profile_image) {

@@ -104,7 +104,9 @@ export const useChat = (bookingId?: string) => {
             },
             profileImage: existingRoom.booking.counselor.profile_image,
             bio: existingRoom.booking.counselor.bio,
-            specialties: existingRoom.booking.counselor.specialties,
+            specialties: Array.isArray(existingRoom.booking.counselor.specialties) && existingRoom.booking.counselor.specialties.length > 0 
+              ? existingRoom.booking.counselor.specialties.filter(s => s && s.trim().length > 0)
+              : [],
             profileUrl: existingRoom.booking.counselor.profile_url,
             hourlyRate: existingRoom.booking.counselor.hourly_rate,
             isActive: existingRoom.booking.counselor.is_active,

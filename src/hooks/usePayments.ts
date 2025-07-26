@@ -68,7 +68,9 @@ export const usePayments = () => {
             },
             profileImage: payment.booking.counselor.profile_image,
             bio: payment.booking.counselor.bio,
-            specialties: payment.booking.counselor.specialties,
+            specialties: Array.isArray(payment.booking.counselor.specialties) && payment.booking.counselor.specialties.length > 0 
+              ? payment.booking.counselor.specialties.filter(s => s && s.trim().length > 0)
+              : [],
             profileUrl: payment.booking.counselor.profile_url,
             hourlyRate: payment.booking.counselor.hourly_rate,
             isActive: payment.booking.counselor.is_active,
