@@ -394,7 +394,7 @@ export const CounselorDashboardPage: React.FC = () => {
                 className={`
                   px-4 py-2 rounded-lg font-medium transition-all duration-200
                   ${activeTab === menu.key 
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 hover:bg-blue-700' 
+                    ? 'bg-blue-600 text-white shadow-lg hover:bg-blue-700' 
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
                   }
                 `}

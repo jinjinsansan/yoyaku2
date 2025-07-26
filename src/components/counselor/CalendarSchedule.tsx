@@ -200,7 +200,7 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
           >
             ←
           </Button>
-          <span className="text-lg font-semibold min-w-[120px] text-center">
+          <span className="text-lg font-semibold w-32 text-center">
             {currentMonth.getFullYear()}年{currentMonth.getMonth() + 1}月
           </span>
           <Button 
@@ -241,7 +241,7 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
                       key={index}
                       onClick={() => handleDateClick(date)}
                       className={`
-                        min-h-[80px] p-2 border rounded cursor-pointer transition-colors
+                        min-h-20 p-2 border rounded cursor-pointer transition-colors
                         ${isCurrentMonth ? 'bg-white' : 'bg-gray-50'}
                         ${isSelected ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' : 'border-gray-200'}
                         ${hasSchedules ? 'border-green-300 bg-green-50' : ''}
@@ -294,14 +294,14 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
                             type="time"
                             value={slot.start}
                             onChange={(e) => updateTimeSlot(index, 'start', e.target.value)}
-                            className="flex-1 min-w-[120px]"
+                            className="flex-1 w-32"
                           />
                           <span className="text-gray-500 font-medium">〜</span>
                           <Input
                             type="time"
                             value={slot.end}
                             onChange={(e) => updateTimeSlot(index, 'end', e.target.value)}
-                            className="flex-1 min-w-[120px]"
+                            className="flex-1 w-32"
                           />
                         </div>
                         <Button
