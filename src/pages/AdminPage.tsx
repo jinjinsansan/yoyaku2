@@ -57,7 +57,9 @@ export const AdminPage: React.FC = () => {
       avatar: c.user?.avatar || '',
       profileImage: c.profile_image || '',
       bio: c.bio || '',
-      specialties: (c.specialties || []).join(','),
+      specialties: Array.isArray(c.specialties) && c.specialties.length > 0 
+        ? c.specialties.join(',') 
+        : '',
       profileUrl: c.profile_url || '',
       hourlyRate: c.hourly_rate || 0,
       isActive: c.is_active,
@@ -83,7 +85,9 @@ export const AdminPage: React.FC = () => {
       await supabase.from('counselors').update({
         profile_image: editProfile.profileImage,
         bio: editProfile.bio,
-        specialties: editProfile.specialties.split(',').map((s: string) => s.trim()),
+        specialties: editProfile.specialties.trim() 
+          ? editProfile.specialties.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0)
+          : [],
         profile_url: editProfile.profileUrl,
         hourly_rate: Number(editProfile.hourlyRate),
         is_active: editProfile.isActive,

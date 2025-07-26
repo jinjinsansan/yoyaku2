@@ -173,11 +173,14 @@ export const CounselorDashboardPage: React.FC = () => {
       (async () => {
         const { data, error } = await supabase.from('counselors').select('profile_image, bio, specialties').eq('user_id', user.id).limit(1).maybeSingle();
         if (data) {
+          console.log('初期値取得 data.specialties:', data.specialties);
           setProfile(p => ({
             ...p,
             profileImage: data.profile_image || '',
             bio: data.bio || '',
-            specialties: (data.specialties || []).join(',')
+            specialties: Array.isArray(data.specialties) && data.specialties.length > 0 
+              ? data.specialties.join(',') 
+              : ''
           }));
           if (data.profile_image) {
             setImagePreview(data.profile_image);
@@ -243,10 +246,13 @@ export const CounselorDashboardPage: React.FC = () => {
         await supabase.auth.updateUser({ password: profile.password });
       }
       // counselorsテーブル更新
+      console.log('保存前 profile.specialties:', profile.specialties);
       const { error: updateError } = await supabase.from('counselors').update({
         profile_image: profile.profileImage,
         bio: profile.bio,
-        specialties: profile.specialties.split(',').map(s => s.trim())
+        specialties: profile.specialties.trim() 
+          ? profile.specialties.split(',').map(s => s.trim()).filter(s => s.length > 0)
+          : []
       }).eq('user_id', user.id);
       
       if (updateError) {
