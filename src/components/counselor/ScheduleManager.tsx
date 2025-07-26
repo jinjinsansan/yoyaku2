@@ -90,6 +90,9 @@ export const ScheduleManager: React.FC<ScheduleManagerProps> = ({ counselorId })
       setSaving(true);
       setMessage('');
 
+      console.log('🔍 DEBUG: ScheduleManager saveSchedules - counselorId:', counselorId);
+      console.log('🔍 DEBUG: ScheduleManager saveSchedules - schedules to save:', schedules);
+
       // 既存のスケジュールを削除
       const { error: deleteError } = await supabase
         .from('schedules')
@@ -100,17 +103,19 @@ export const ScheduleManager: React.FC<ScheduleManagerProps> = ({ counselorId })
 
       // 新しいスケジュールを追加
       if (schedules.length > 0) {
+        const insertData = schedules.map(schedule => ({
+          counselor_id: counselorId,
+          day_of_week: schedule.dayOfWeek,
+          start_time: schedule.startTime,
+          end_time: schedule.endTime,
+          is_available: schedule.isAvailable,
+        }));
+        
+        console.log('🔍 DEBUG: ScheduleManager saveSchedules - insertData:', insertData);
+
         const { error: insertError } = await supabase
           .from('schedules')
-          .insert(
-            schedules.map(schedule => ({
-              counselor_id: counselorId,
-              day_of_week: schedule.dayOfWeek,
-              start_time: schedule.startTime,
-              end_time: schedule.endTime,
-              is_available: schedule.isAvailable,
-            }))
-          );
+          .insert(insertData);
 
         if (insertError) throw insertError;
       }
