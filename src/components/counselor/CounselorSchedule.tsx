@@ -85,9 +85,10 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
     }
   };
 
-  const getSchedulesForDay = (dayOfWeek: number) => {
-    const daySchedules = schedules.filter(schedule => schedule.dayOfWeek === dayOfWeek);
-    return daySchedules;
+  // getSchedulesForDay: dayOfWeek -> date: Date で受ける
+  const getSchedulesForDay = (date: Date) => {
+    const dayOfWeek = date.getDay();
+    return schedules.filter(schedule => schedule.dayOfWeek === dayOfWeek);
   };
 
   const formatTime = (time: string) => {
@@ -199,7 +200,7 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
       <div className="space-y-4">
         {weekDates.map((date, dayIndex) => {
           const dayOfWeek = date.getDay();
-          const daySchedules = getSchedulesForDay(dayOfWeek);
+          const daySchedules = getSchedulesForDay(date);
           
           return (
             <div key={dayOfWeek} className="border rounded-lg p-4">
