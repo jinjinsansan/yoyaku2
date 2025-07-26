@@ -28,7 +28,7 @@ export interface Counselor {
 
 // 予約関連の型定義
 export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
-export type ServiceType = 'monthly' | 'single';
+export type ServiceType = 'chat' | 'monthly' | 'single';
 
 export interface Booking {
   id: string;

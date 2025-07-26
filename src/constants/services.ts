@@ -2,6 +2,14 @@ import { Service } from '../types';
 
 export const SERVICES: Service[] = [
   {
+    id: 'chat',
+    name: 'チャット予約（30分無料）',
+    description: '30分間の無料チャット相談',
+    price: 0,
+    duration: 30,
+    type: 'single'
+  },
+  {
     id: 'monthly',
     name: 'カウンセリング1ヶ月コース',
     description: '月4回のカウンセリングセッション（1回60分）',

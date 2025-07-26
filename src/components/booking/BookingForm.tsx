@@ -11,6 +11,7 @@ import { formatCurrency, formatDate } from '../../lib/utils';
 
 interface BookingFormProps {
   counselorName: string;
+  counselorId: string;
   schedules: Schedule[];
   onSubmit: (bookingData: {
     serviceType: ServiceType;
@@ -23,6 +24,7 @@ interface BookingFormProps {
 
 export const BookingForm: React.FC<BookingFormProps> = ({
   counselorName,
+  counselorId,
   schedules,
   onSubmit,
   loading = false
@@ -81,6 +83,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           schedules={schedules}
           selectedDateTime={selectedDateTime}
           onDateTimeSelect={setSelectedDateTime}
+          counselorId={counselorId}
         />
       )}
 

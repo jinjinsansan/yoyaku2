@@ -8,9 +8,11 @@ import { Textarea } from '../components/ui/Textarea';
 import { supabase } from '../lib/supabase';
 import { formatCurrency, formatDate } from '../lib/utils';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { ScheduleManager } from '../components/counselor/ScheduleManager';
 
 const MENU = [
   { key: 'profile', label: 'プロフィール編集' },
+  { key: 'schedule', label: 'スケジュール管理' },
   { key: 'bookings', label: '予約管理' },
   { key: 'chat', label: 'チャット' },
   { key: 'users', label: 'ユーザー一覧' },
@@ -588,6 +590,9 @@ export const CounselorDashboardPage: React.FC = () => {
                 </div>
               </div>
             </Card>
+          )}
+          {activeTab === 'schedule' && (
+            <ScheduleManager counselorId={user?.id || ''} />
           )}
           {activeTab === 'memo' && (
             <Card className="p-6">

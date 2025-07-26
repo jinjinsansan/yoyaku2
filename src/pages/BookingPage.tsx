@@ -8,6 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 import { BookingForm } from '../components/booking/BookingForm';
 import { Button } from '../components/ui/Button';
 import { ServiceType } from '../types';
+import { sendReservationMail } from '../lib/sendMail';
 
 export const BookingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,8 +39,34 @@ export const BookingPage: React.FC = () => {
         ...bookingData
       });
 
-      // 予約成功後、決済ページに遷移
-      navigate(`/payment/${booking.id}`);
+      // 予約完了メールを送信
+      const serviceName = bookingData.serviceType === 'chat' ? 'チャット予約（30分無料）' :
+                         bookingData.serviceType === 'monthly' ? 'カウンセリング予約（1ヶ月コース）' :
+                         'カウンセリング予約（単発）';
+      
+      const reservationInfo = `
+予約内容：${serviceName}
+カウンセラー：${counselor.name}
+日時：${bookingData.scheduledAt.toLocaleString('ja-JP')}
+金額：${bookingData.amount.toLocaleString()}円
+予約番号：${booking.id}
+      `.trim();
+
+      try {
+        await sendReservationMail(user.email, reservationInfo);
+        console.log('予約確認メールを送信しました');
+      } catch (error) {
+        console.error('メール送信に失敗しました:', error);
+        // メール送信に失敗しても予約処理は続行
+      }
+
+      // チャット予約の場合は決済をスキップしてチャットページに遷移
+      if (bookingData.serviceType === 'chat') {
+        navigate(`/chat/${booking.id}`);
+      } else {
+        // その他の予約は決済ページに遷移
+        navigate(`/payment/${booking.id}`);
+      }
     } catch (err: any) {
       setError(err.message || '予約の作成に失敗しました');
     } finally {
@@ -163,6 +190,7 @@ export const BookingPage: React.FC = () => {
         {/* 予約フォーム */}
         <BookingForm
           counselorName={counselor.user.name}
+          counselorId={counselor.id}
           schedules={schedules}
           onSubmit={handleBookingSubmit}
           loading={bookingLoading}

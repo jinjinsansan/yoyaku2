@@ -97,7 +97,7 @@ export interface Database {
           id: string
           user_id: string
           counselor_id: string
-          service_type: 'monthly' | 'single'
+          service_type: 'chat' | 'monthly' | 'single'
           scheduled_at: string
           status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
           amount: number
@@ -109,7 +109,7 @@ export interface Database {
           id?: string
           user_id: string
           counselor_id: string
-          service_type: 'monthly' | 'single'
+          service_type: 'chat' | 'monthly' | 'single'
           scheduled_at: string
           status?: 'pending' | 'confirmed' | 'completed' | 'cancelled'
           amount: number
@@ -121,7 +121,7 @@ export interface Database {
           id?: string
           user_id?: string
           counselor_id?: string
-          service_type?: 'monthly' | 'single'
+          service_type?: 'chat' | 'monthly' | 'single'
           scheduled_at?: string
           status?: 'pending' | 'confirmed' | 'completed' | 'cancelled'
           amount?: number

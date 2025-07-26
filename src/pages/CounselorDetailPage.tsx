@@ -17,6 +17,7 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { ReviewList } from '../components/review/ReviewList';
+import { CounselorSchedule } from '../components/counselor/CounselorSchedule';
 import { formatCurrency } from '../lib/utils';
 
 export const CounselorDetailPage: React.FC = () => {
@@ -144,6 +145,9 @@ export const CounselorDetailPage: React.FC = () => {
                 </p>
               </div>
             </Card>
+
+            {/* スケジュール */}
+            <CounselorSchedule counselorId={counselor.id} />
 
             {/* レビュー・評価 */}
             <Card>

@@ -2,143 +2,53 @@ import React, { useState, useMemo } from 'react';
 import { Calendar, Clock } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
+import { CounselorSchedule } from '../counselor/CounselorSchedule';
 import { Schedule } from '../../types';
 
 interface DateTimeSelectorProps {
   schedules: Schedule[];
   selectedDateTime: Date | null;
   onDateTimeSelect: (dateTime: Date) => void;
+  counselorId: string;
 }
 
 export const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
   schedules,
   selectedDateTime,
-  onDateTimeSelect
+  onDateTimeSelect,
+  counselorId
 }) => {
-  const [selectedDate, setSelectedDate] = useState<string>('');
-
-  // 今日から2週間後までの日付を生成
-  const availableDates = useMemo(() => {
-    const dates = [];
+  const handleTimeSlotSelect = (dayOfWeek: number, startTime: string, endTime: string) => {
+    // 次の該当する曜日の日付を計算
     const today = new Date();
+    const targetDate = new Date(today);
+    const daysUntilTarget = (dayOfWeek - today.getDay() + 7) % 7;
     
-    for (let i = 1; i <= 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      
-      // その日の曜日に対応するスケジュールがあるかチェック
-      const dayOfWeek = date.getDay();
-      const hasSchedule = schedules.some(schedule => schedule.dayOfWeek === dayOfWeek);
-      
-      if (hasSchedule) {
-        dates.push({
-          date: date.toISOString().split('T')[0],
-          dayOfWeek,
-          displayDate: date.toLocaleDateString('ja-JP', {
-            month: 'short',
-            day: 'numeric',
-            weekday: 'short'
-          })
-        });
-      }
+    // 今日がその曜日でない場合は、次の該当曜日を設定
+    if (daysUntilTarget === 0 && today.getDay() === dayOfWeek) {
+      targetDate.setDate(today.getDate() + 7);
+    } else {
+      targetDate.setDate(today.getDate() + daysUntilTarget);
     }
     
-    return dates;
-  }, [schedules]);
-
-  // 選択された日付の利用可能時間を生成
-  const availableTimes = useMemo(() => {
-    if (!selectedDate) return [];
+    // 時間を設定
+    const [hours, minutes] = startTime.split(':').map(Number);
+    targetDate.setHours(hours, minutes, 0, 0);
     
-    const date = new Date(selectedDate);
-    const dayOfWeek = date.getDay();
-    const daySchedules = schedules.filter(schedule => schedule.dayOfWeek === dayOfWeek);
-    
-    const times = [];
-    
-    daySchedules.forEach(schedule => {
-      const [startHour, startMinute] = schedule.startTime.split(':').map(Number);
-      const [endHour, endMinute] = schedule.endTime.split(':').map(Number);
-      
-      const startTime = startHour * 60 + startMinute;
-      const endTime = endHour * 60 + endMinute;
-      
-      // 60分間隔で時間スロットを生成
-      for (let time = startTime; time < endTime; time += 60) {
-        const hour = Math.floor(time / 60);
-        const minute = time % 60;
-        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        
-        times.push({
-          time: timeString,
-          dateTime: new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute)
-        });
-      }
-    });
-    
-    return times;
-  }, [selectedDate, schedules]);
-
-  const handleDateSelect = (date: string) => {
-    setSelectedDate(date);
-  };
-
-  const handleTimeSelect = (dateTime: Date) => {
-    onDateTimeSelect(dateTime);
+    onDateTimeSelect(targetDate);
   };
 
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold text-slate-800">日時を選択</h3>
       
-      {/* 日付選択 */}
-      <div>
-        <h4 className="text-md font-medium text-slate-700 mb-3 flex items-center">
-          <Calendar className="w-4 h-4 mr-2" />
-          日付を選択
-        </h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
-          {availableDates.map((dateInfo) => (
-            <Button
-              key={dateInfo.date}
-              variant={selectedDate === dateInfo.date ? 'primary' : 'outline'}
-              size="sm"
-              onClick={() => handleDateSelect(dateInfo.date)}
-              className="text-xs"
-            >
-              {dateInfo.displayDate}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* 時間選択 */}
-      {selectedDate && (
-        <div>
-          <h4 className="text-md font-medium text-slate-700 mb-3 flex items-center">
-            <Clock className="w-4 h-4 mr-2" />
-            時間を選択
-          </h4>
-          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-            {availableTimes.map((timeInfo) => (
-              <Button
-                key={timeInfo.time}
-                variant={
-                  selectedDateTime && 
-                  selectedDateTime.getTime() === timeInfo.dateTime.getTime() 
-                    ? 'primary' 
-                    : 'outline'
-                }
-                size="sm"
-                onClick={() => handleTimeSelect(timeInfo.dateTime)}
-                className="text-sm"
-              >
-                {timeInfo.time}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* スケジュール表示 */}
+      <CounselorSchedule
+        counselorId={counselorId}
+        onTimeSlotSelect={handleTimeSlotSelect}
+        selectedDate={selectedDateTime}
+        selectedTime={selectedDateTime ? selectedDateTime.toTimeString().slice(0, 5) : undefined}
+      />
 
       {/* 選択された日時の確認 */}
       {selectedDateTime && (
