@@ -8,7 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 import { BookingForm } from '../components/booking/BookingForm';
 import { Button } from '../components/ui/Button';
 import { ServiceType } from '../types';
-import { sendReservationMail } from '../lib/sendMail';
+
 
 export const BookingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -53,8 +53,25 @@ export const BookingPage: React.FC = () => {
       `.trim();
 
       try {
-        await sendReservationMail(user.email, reservationInfo);
-        console.log('予約確認メールを送信しました');
+        // Netlify Functionを呼び出してメール送信
+        const response = await fetch('/.netlify/functions/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            to: user.email,
+            reservationInfo: reservationInfo
+          })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          console.log('予約確認メールを送信しました');
+        } else {
+          console.error('メール送信に失敗しました:', result.error);
+        }
       } catch (error) {
         console.error('メール送信に失敗しました:', error);
         // メール送信に失敗しても予約処理は続行
