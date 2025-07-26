@@ -381,17 +381,54 @@ export const CounselorDashboardPage: React.FC = () => {
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-slate-800 mb-8">カウンセラーダッシュボード</h1>
-        <div className="flex space-x-4 mb-8">
-          {MENU.map(menu => (
-            <Button
-              key={menu.key}
-              variant={activeTab === menu.key ? 'primary' : 'outline'}
-              onClick={() => setActiveTab(menu.key)}
-            >
-              {menu.label}
-            </Button>
-          ))}
+        
+        {/* メニュータブ */}
+        <div className="mb-8">
+          {/* デスクトップ用タブ */}
+          <div className="hidden md:flex flex-wrap gap-2">
+            {MENU.map(menu => (
+              <Button
+                key={menu.key}
+                variant={activeTab === menu.key ? 'primary' : 'outline'}
+                onClick={() => setActiveTab(menu.key)}
+                className={`
+                  px-4 py-2 rounded-lg font-medium transition-all duration-200
+                  ${activeTab === menu.key 
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 hover:bg-blue-700' 
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                  }
+                `}
+              >
+                {menu.label}
+              </Button>
+            ))}
+          </div>
+          
+          {/* モバイル用タブ */}
+          <div className="md:hidden">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1">
+              <div className="grid grid-cols-2 gap-1">
+                {MENU.map(menu => (
+                  <Button
+                    key={menu.key}
+                    variant={activeTab === menu.key ? 'primary' : 'outline'}
+                    onClick={() => setActiveTab(menu.key)}
+                    className={`
+                      px-3 py-2 text-sm rounded-md font-medium transition-all duration-200
+                      ${activeTab === menu.key 
+                        ? 'bg-blue-600 text-white shadow-sm' 
+                        : 'bg-transparent text-gray-700 border-transparent hover:bg-gray-50'
+                      }
+                    `}
+                  >
+                    {menu.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
+        
         <div>
           {activeTab === 'profile' && (
             <Card className="p-6">

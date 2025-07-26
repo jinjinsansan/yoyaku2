@@ -188,24 +188,35 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      {/* ヘッダー */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="text-2xl font-bold text-gray-900">カレンダースケジュール管理</h2>
         <div className="flex items-center space-x-2">
-          <Button onClick={goToPreviousMonth} variant="outline" size="sm">
+          <Button 
+            onClick={goToPreviousMonth} 
+            variant="outline" 
+            size="sm"
+            className="px-3 py-2"
+          >
             ←
           </Button>
-          <span className="text-lg font-semibold">
+          <span className="text-lg font-semibold min-w-[120px] text-center">
             {currentMonth.getFullYear()}年{currentMonth.getMonth() + 1}月
           </span>
-          <Button onClick={goToNextMonth} variant="outline" size="sm">
+          <Button 
+            onClick={goToNextMonth} 
+            variant="outline" 
+            size="sm"
+            className="px-3 py-2"
+          >
             →
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* カレンダー */}
-        <div className="lg:col-span-2">
+        <div className="xl:col-span-2">
           <Card>
             <div className="p-4">
               {/* 曜日ヘッダー */}
@@ -230,11 +241,11 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
                       key={index}
                       onClick={() => handleDateClick(date)}
                       className={`
-                        min-h-[60px] p-2 border rounded cursor-pointer transition-colors
+                        min-h-[80px] p-2 border rounded cursor-pointer transition-colors
                         ${isCurrentMonth ? 'bg-white' : 'bg-gray-50'}
-                        ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
+                        ${isSelected ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' : 'border-gray-200'}
                         ${hasSchedules ? 'border-green-300 bg-green-50' : ''}
-                        hover:border-blue-300
+                        hover:border-blue-300 hover:shadow-sm
                       `}
                     >
                       <div className="text-sm font-medium text-gray-900">
@@ -256,10 +267,10 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
         </div>
 
         {/* 時間枠設定 */}
-        <div>
+        <div className="xl:col-span-1">
           <Card>
             <div className="p-4">
-              <h3 className="text-lg font-semibold mb-4">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">
                 {selectedDate ? (
                   `${selectedDate.getFullYear()}年${selectedDate.getMonth() + 1}月${selectedDate.getDate()}日`
                 ) : (
@@ -269,49 +280,71 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
 
               {selectedDate && (
                 <div className="space-y-4">
+                  {timeSlots.length === 0 && (
+                    <div className="text-gray-500 text-center py-4 text-sm">
+                      時間枠が設定されていません
+                    </div>
+                  )}
+                  
                   {timeSlots.map((slot, index) => (
-                    <div key={index} className="flex items-center space-x-2 p-3 border rounded">
-                      <Input
-                        type="time"
-                        value={slot.start}
-                        onChange={(e) => updateTimeSlot(index, 'start', e.target.value)}
-                        className="w-20"
-                      />
-                      <span>〜</span>
-                      <Input
-                        type="time"
-                        value={slot.end}
-                        onChange={(e) => updateTimeSlot(index, 'end', e.target.value)}
-                        className="w-20"
-                      />
-                      <label className="flex items-center space-x-1">
+                    <div key={index} className="bg-gray-50 rounded-lg p-4 space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div className="flex items-center space-x-2 flex-1">
+                          <Input
+                            type="time"
+                            value={slot.start}
+                            onChange={(e) => updateTimeSlot(index, 'start', e.target.value)}
+                            className="flex-1 min-w-[120px]"
+                          />
+                          <span className="text-gray-500 font-medium">〜</span>
+                          <Input
+                            type="time"
+                            value={slot.end}
+                            onChange={(e) => updateTimeSlot(index, 'end', e.target.value)}
+                            className="flex-1 min-w-[120px]"
+                          />
+                        </div>
+                        <Button
+                          onClick={() => removeTimeSlot(index)}
+                          variant="outline"
+                          size="sm"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          ×
+                        </Button>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
                         <input
                           type="checkbox"
+                          id={`available-${index}`}
                           checked={slot.is_available}
                           onChange={(e) => updateTimeSlot(index, 'is_available', e.target.checked)}
-                          className="rounded"
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm">利用可能</span>
-                      </label>
-                      <Button
-                        onClick={() => removeTimeSlot(index)}
-                        variant="outline"
-                        size="sm"
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        ×
-                      </Button>
+                        <label 
+                          htmlFor={`available-${index}`}
+                          className="text-sm text-gray-700 cursor-pointer"
+                        >
+                          利用可能
+                        </label>
+                      </div>
                     </div>
                   ))}
 
-                  <Button onClick={addTimeSlot} variant="outline" size="sm" className="w-full">
+                  <Button 
+                    onClick={addTimeSlot} 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full py-3"
+                  >
                     + 時間枠を追加
                   </Button>
 
                   <Button
                     onClick={saveSchedules}
                     disabled={isLoading}
-                    className="w-full"
+                    className="w-full py-3"
                   >
                     {isLoading ? '保存中...' : '保存'}
                   </Button>
