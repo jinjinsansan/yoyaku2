@@ -76,8 +76,9 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onAuthClick }) => {
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-400 via-pink-400 to-indigo-500 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  心理カウンセリング
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent leading-tight">
+                  <div>一般社団法人</div>
+                  <div>NAMIDAサポート協会</div>
                 </h1>
                 <p className="text-sm text-gray-600 font-medium">あなたの心に寄り添います</p>
               </div>
@@ -87,50 +88,50 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onAuthClick }) => {
             <nav className="hidden lg:flex items-center space-x-1">
               <button 
                 onClick={() => window.location.href = '/'}
-                className="px-6 py-3 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
+                className="px-4 py-3 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
               >
                 ホーム
               </button>
               <button 
                 onClick={() => window.location.href = '/counselors'}
-                className="px-6 py-3 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
+                className="px-4 py-3 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
               >
                 カウンセラー
               </button>
               {isAuthenticated && (
                 <button 
                   onClick={() => window.location.href = '/dashboard'}
-                  className="px-6 py-3 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
+                  className="px-4 py-3 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
                 >
                   マイページ
                 </button>
               )}
               <button 
                 onClick={() => {/* 料金セクションにスクロール */}}
-                className="px-6 py-3 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
+                className="px-4 py-3 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
               >
                 料金
               </button>
               <button 
                 onClick={() => {/* お問い合わせモーダル表示 */}}
-                className="px-6 py-3 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
+                className="px-4 py-3 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
               >
                 お問い合わせ
               </button>
             </nav>
 
             {/* 美しいユーザーアクション */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
               {/* カウンセラーダッシュボードボタン */}
               {isAuthenticated && user && isCounselor === true && (
                 <button
                   onClick={() => window.location.href = '/counselor-dashboard'}
-                  className="hidden md:flex items-center px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  className="hidden md:flex items-center px-3 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
-                  カウンセラーダッシュボード
+                  カウンセラー
                 </button>
               )}
               
@@ -138,28 +139,28 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onAuthClick }) => {
               {isAuthenticated && user && user.email === 'goldbenchan@gmail.com' && (
                 <button
                   onClick={() => window.location.href = '/admin'}
-                  className="hidden md:flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  className="hidden md:flex items-center px-3 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
-                  マスター管理画面
+                  管理画面
                 </button>
               )}
 
               {/* ログイン/ログアウトボタン */}
               <button 
                 onClick={handleAuthAction}
-                className="hidden md:flex items-center px-4 py-2 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
+                className="hidden md:flex items-center px-3 py-2 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
               >
                 {isAuthenticated ? (
                   <>
-                    <LogOut className="w-4 h-4 mr-2" />
+                    <LogOut className="w-4 h-4 mr-1" />
                     ログアウト
                   </>
                 ) : (
                   <>
-                    <User className="w-4 h-4 mr-2" />
+                    <User className="w-4 h-4 mr-1" />
                     ログイン
                   </>
                 )}
@@ -167,10 +168,10 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onAuthClick }) => {
 
               {/* 美しいCTAボタン */}
               <button 
-                className="hidden md:flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:from-purple-700 hover:to-indigo-700"
+                className="hidden md:flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:from-purple-700 hover:to-indigo-700"
               >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                無料相談を始める
+                <MessageCircle className="w-4 h-4 mr-1" />
+                無料相談
               </button>
               
               {/* 美しいモバイルメニューボタン */}
