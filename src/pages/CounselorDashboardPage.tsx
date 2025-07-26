@@ -40,6 +40,15 @@ const MENU = [
     )
   },
   { 
+    key: 'chat', 
+    label: 'チャット管理',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+      </svg>
+    )
+  },
+  { 
     key: 'reviews', 
     label: 'レビュー管理',
     icon: (
@@ -566,6 +575,26 @@ export const CounselorDashboardPage: React.FC = () => {
               </div>
             )}
 
+            {activeTab === 'chat' && (
+              <div className="space-y-8">
+                <div className="text-center">
+                  <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    チャット管理
+                  </h2>
+                  <p className="text-gray-600 text-lg">カウンセラーとお客様のチャットを管理します</p>
+                </div>
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-500 text-lg font-medium">チャットデータがありません</p>
+                  <p className="text-gray-400 text-sm mt-2">チャットが開始されるとここに表示されます</p>
+                </div>
+              </div>
+            )}
+
             {activeTab === 'reviews' && (
               <div className="space-y-8">
                 <div className="text-center">
@@ -594,15 +623,141 @@ export const CounselorDashboardPage: React.FC = () => {
                   </h2>
                   <p className="text-gray-600 text-lg">プロフィール情報を管理します</p>
                 </div>
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                
+                <form onSubmit={handleProfileSave} className="max-w-2xl mx-auto space-y-6">
+                  {/* プロフィール画像 */}
+                  <div className="space-y-4">
+                    <label className="block text-sm font-medium text-gray-700">プロフィール画像</label>
+                    <div className="flex items-center space-x-6">
+                      <div className="relative">
+                        {imagePreview ? (
+                          <div className="relative">
+                            <img 
+                              src={imagePreview} 
+                              alt="プロフィール画像" 
+                              className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleRemoveImage}
+                              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center border-4 border-white shadow-lg">
+                            <ImageIcon className="w-8 h-8 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex-1">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                        />
+                        <div
+                          onDrop={handleDrop}
+                          onDragOver={handleDragOver}
+                          className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors cursor-pointer"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Upload className="w-6 h-6 mx-auto text-gray-400 mb-2" />
+                          <p className="text-sm text-gray-600">
+                            {imageUploading ? 'アップロード中...' : 'クリックまたはドラッグ&ドロップで画像を選択'}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">JPG, PNG, GIF (5MB以下)</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-gray-500 text-lg font-medium">プロフィール設定機能</p>
-                  <p className="text-gray-400 text-sm mt-2">今後実装予定です</p>
-                </div>
+
+                  {/* 基本情報 */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">名前</label>
+                      <Input
+                        type="text"
+                        value={profile.name}
+                        onChange={(e) => setProfile(p => ({ ...p, name: e.target.value }))}
+                        placeholder="カウンセラー名"
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">メールアドレス</label>
+                      <Input
+                        type="email"
+                        value={profile.email}
+                        onChange={(e) => setProfile(p => ({ ...p, email: e.target.value }))}
+                        placeholder="example@email.com"
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">パスワード（変更する場合のみ入力）</label>
+                    <Input
+                      type="password"
+                      value={profile.password}
+                      onChange={(e) => setProfile(p => ({ ...p, password: e.target.value }))}
+                      placeholder="新しいパスワード"
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">専門分野（カンマ区切り）</label>
+                    <Input
+                      type="text"
+                      value={profile.specialties}
+                      onChange={(e) => setProfile(p => ({ ...p, specialties: e.target.value }))}
+                      placeholder="例: PTSD治療, うつ病, カップルカウンセリング"
+                      className="w-full"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      利用可能な専門分野: {SPECIALTY_TAGS.join(', ')}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">自己紹介</label>
+                    <Textarea
+                      value={profile.bio}
+                      onChange={(e) => setProfile(p => ({ ...p, bio: e.target.value }))}
+                      placeholder="カウンセラーとしての自己紹介を入力してください"
+                      rows={6}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* 保存ボタン */}
+                  <div className="flex justify-center">
+                    <Button
+                      type="submit"
+                      disabled={profileLoading}
+                      className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {profileLoading ? '保存中...' : 'プロフィールを保存'}
+                    </Button>
+                  </div>
+
+                  {/* メッセージ表示 */}
+                  {profileMsg && (
+                    <div className={`text-center p-4 rounded-lg ${
+                      profileMsg.includes('エラー') 
+                        ? 'bg-red-100 text-red-700 border border-red-200' 
+                        : 'bg-green-100 text-green-700 border border-green-200'
+                    }`}>
+                      {profileMsg}
+                    </div>
+                  )}
+                </form>
               </div>
             )}
           </div>

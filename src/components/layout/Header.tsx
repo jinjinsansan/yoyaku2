@@ -80,7 +80,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onAuthClick }) => {
                   <div>一般社団法人</div>
                   <div>NAMIDAサポート協会</div>
                 </h1>
-                <p className="text-sm text-gray-600 font-medium">あなたの心に寄り添います</p>
               </div>
             </div>
 
