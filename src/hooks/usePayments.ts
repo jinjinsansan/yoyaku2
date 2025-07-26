@@ -38,34 +38,36 @@ export const usePayments = () => {
 
       if (error) throw error;
 
-      const formattedPayments: Payment[] = data.map(payment => ({
-        id: payment.id,
-        bookingId: payment.booking_id,
-        booking: {
-          id: payment.booking.id,
-          userId: payment.booking.user_id,
-          counselorId: payment.booking.counselor_id,
-          user: {
-            id: payment.booking.user.id,
-            email: payment.booking.user.email,
-            name: payment.booking.user.name,
-            phone: payment.booking.user.phone,
-            avatar: payment.booking.user.avatar,
-            createdAt: new Date(payment.booking.user.created_at),
-            updatedAt: new Date(payment.booking.user.updated_at)
-          },
-          counselor: {
-            id: payment.booking.counselor.id,
-            userId: payment.booking.counselor.user_id,
+      const formattedPayments: Payment[] = data
+        .filter(payment => payment.booking?.user && payment.booking?.counselor?.user) // nullチェック
+        .map(payment => ({
+          id: payment.id,
+          bookingId: payment.booking_id,
+          booking: {
+            id: payment.booking.id,
+            userId: payment.booking.user_id,
+            counselorId: payment.booking.counselor_id,
             user: {
-              id: payment.booking.counselor.user.id,
-              email: payment.booking.counselor.user.email,
-              name: payment.booking.counselor.user.name,
-              phone: payment.booking.counselor.user.phone,
-              avatar: payment.booking.counselor.user.avatar,
-              createdAt: new Date(payment.booking.counselor.user.created_at),
-              updatedAt: new Date(payment.booking.counselor.user.updated_at)
+              id: payment.booking.user?.id || '',
+              email: payment.booking.user?.email || '',
+              name: payment.booking.user?.name || '',
+              phone: payment.booking.user?.phone || '',
+              avatar: payment.booking.user?.avatar || '',
+              createdAt: new Date(payment.booking.user?.created_at || Date.now()),
+              updatedAt: new Date(payment.booking.user?.updated_at || Date.now())
             },
+            counselor: {
+              id: payment.booking.counselor?.id || '',
+              userId: payment.booking.counselor?.user_id || '',
+              user: {
+                id: payment.booking.counselor.user?.id || '',
+                email: payment.booking.counselor.user?.email || '',
+                name: payment.booking.counselor.user?.name || '',
+                phone: payment.booking.counselor.user?.phone || '',
+                avatar: payment.booking.counselor.user?.avatar || '',
+                createdAt: new Date(payment.booking.counselor.user?.created_at || Date.now()),
+                updatedAt: new Date(payment.booking.counselor.user?.updated_at || Date.now())
+              },
             profileImage: payment.booking.counselor.profile_image,
             bio: payment.booking.counselor.bio,
             specialties: Array.isArray(payment.booking.counselor.specialties) && payment.booking.counselor.specialties.length > 0 

@@ -112,6 +112,9 @@ export const AdminPage: React.FC = () => {
     setSuccess('');
     try {
       // 1. Authユーザー削除
+      if (!counselor.user?.id) {
+        throw new Error('カウンセラーのユーザーIDが見つかりません');
+      }
       await supabase.auth.admin.deleteUser(counselor.user.id);
       // 2. counselorsテーブルから削除
       await supabase.from('counselors').delete().eq('id', counselor.id);
@@ -169,7 +172,7 @@ export const AdminPage: React.FC = () => {
                 {counselors.map(c => (
                   <Card key={c.id} className="p-4 flex flex-col gap-4 md:flex-row md:items-start">
                     {editingId === c.id ? (
-                      <form className="flex-1 flex flex-col gap-2" onSubmit={e => { e.preventDefault(); handleEditSave(c.id, c.user.id); }}>
+                      <form className="flex-1 flex flex-col gap-2" onSubmit={e => { e.preventDefault(); if (c.user?.id) handleEditSave(c.id, c.user.id); }}>
                         <div className="flex flex-col md:flex-row gap-4">
                           <div className="flex-shrink-0 flex flex-col items-center gap-2">
                             {editProfile.profileImage ? (

@@ -74,6 +74,11 @@ export const useChat = (bookingId?: string) => {
         existingRoom = newRoom;
       }
 
+      // nullチェック
+      if (!existingRoom.booking?.user || !existingRoom.booking?.counselor?.user) {
+        throw new Error('チャットルーム情報の取得に失敗しました');
+      }
+
       const formattedRoom: ChatRoom = {
         id: existingRoom.id,
         bookingId: existingRoom.booking_id,
@@ -82,25 +87,25 @@ export const useChat = (bookingId?: string) => {
           userId: existingRoom.booking.user_id,
           counselorId: existingRoom.booking.counselor_id,
           user: {
-            id: existingRoom.booking.user.id,
-            email: existingRoom.booking.user.email,
-            name: existingRoom.booking.user.name,
-            phone: existingRoom.booking.user.phone,
-            avatar: existingRoom.booking.user.avatar,
-            createdAt: new Date(existingRoom.booking.user.created_at),
-            updatedAt: new Date(existingRoom.booking.user.updated_at)
+            id: existingRoom.booking.user?.id || '',
+            email: existingRoom.booking.user?.email || '',
+            name: existingRoom.booking.user?.name || '',
+            phone: existingRoom.booking.user?.phone || '',
+            avatar: existingRoom.booking.user?.avatar || '',
+            createdAt: new Date(existingRoom.booking.user?.created_at || Date.now()),
+            updatedAt: new Date(existingRoom.booking.user?.updated_at || Date.now())
           },
           counselor: {
-            id: existingRoom.booking.counselor.id,
-            userId: existingRoom.booking.counselor.user_id,
+            id: existingRoom.booking.counselor?.id || '',
+            userId: existingRoom.booking.counselor?.user_id || '',
             user: {
-              id: existingRoom.booking.counselor.user.id,
-              email: existingRoom.booking.counselor.user.email,
-              name: existingRoom.booking.counselor.user.name,
-              phone: existingRoom.booking.counselor.user.phone,
-              avatar: existingRoom.booking.counselor.user.avatar,
-              createdAt: new Date(existingRoom.booking.counselor.user.created_at),
-              updatedAt: new Date(existingRoom.booking.counselor.user.updated_at)
+              id: existingRoom.booking.counselor.user?.id || '',
+              email: existingRoom.booking.counselor.user?.email || '',
+              name: existingRoom.booking.counselor.user?.name || '',
+              phone: existingRoom.booking.counselor.user?.phone || '',
+              avatar: existingRoom.booking.counselor.user?.avatar || '',
+              createdAt: new Date(existingRoom.booking.counselor.user?.created_at || Date.now()),
+              updatedAt: new Date(existingRoom.booking.counselor.user?.updated_at || Date.now())
             },
             profileImage: existingRoom.booking.counselor.profile_image,
             bio: existingRoom.booking.counselor.bio,

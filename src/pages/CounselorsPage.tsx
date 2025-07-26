@@ -16,7 +16,13 @@ export const CounselorsPage: React.FC = () => {
   const availableSpecialties = useMemo(() => {
     const specialties = new Set<string>();
     counselors.forEach(counselor => {
-      counselor.specialties.forEach(specialty => specialties.add(specialty));
+      if (counselor.specialties && Array.isArray(counselor.specialties)) {
+        counselor.specialties.forEach(specialty => {
+          if (specialty && specialty.trim().length > 0) {
+            specialties.add(specialty);
+          }
+        });
+      }
     });
     return Array.from(specialties).sort();
   }, [counselors]);
@@ -25,13 +31,14 @@ export const CounselorsPage: React.FC = () => {
   const filteredCounselors = useMemo(() => {
     return counselors.filter(counselor => {
       // 名前での検索
-      const matchesSearch = counselor.user.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+      const matchesSearch = counselor.user?.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) || false;
 
       // 専門分野での絞り込み
       const matchesSpecialties = selectedSpecialties.length === 0 ||
         selectedSpecialties.some(specialty => 
+          counselor.specialties && Array.isArray(counselor.specialties) && 
           counselor.specialties.includes(specialty)
         );
 

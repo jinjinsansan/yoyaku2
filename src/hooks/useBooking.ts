@@ -31,30 +31,35 @@ export const useBooking = (bookingId: string) => {
 
       if (error) throw error;
 
+      // nullチェック
+      if (!data.user || !data.counselor || !data.counselor.user) {
+        throw new Error('予約情報の取得に失敗しました');
+      }
+
       const formattedBooking: Booking = {
         id: data.id,
         userId: data.user_id,
         counselorId: data.counselor_id,
         user: {
-          id: data.user.id,
-          email: data.user.email,
-          name: data.user.name,
-          phone: data.user.phone,
-          avatar: data.user.avatar,
-          createdAt: new Date(data.user.created_at),
-          updatedAt: new Date(data.user.updated_at)
+          id: data.user?.id || '',
+          email: data.user?.email || '',
+          name: data.user?.name || '',
+          phone: data.user?.phone || '',
+          avatar: data.user?.avatar || '',
+          createdAt: new Date(data.user?.created_at || Date.now()),
+          updatedAt: new Date(data.user?.updated_at || Date.now())
         },
         counselor: {
-          id: data.counselor.id,
-          userId: data.counselor.user_id,
+          id: data.counselor?.id || '',
+          userId: data.counselor?.user_id || '',
           user: {
-            id: data.counselor.user.id,
-            email: data.counselor.user.email,
-            name: data.counselor.user.name,
-            phone: data.counselor.user.phone,
-            avatar: data.counselor.user.avatar,
-            createdAt: new Date(data.counselor.user.created_at),
-            updatedAt: new Date(data.counselor.user.updated_at)
+            id: data.counselor.user?.id || '',
+            email: data.counselor.user?.email || '',
+            name: data.counselor.user?.name || '',
+            phone: data.counselor.user?.phone || '',
+            avatar: data.counselor.user?.avatar || '',
+            createdAt: new Date(data.counselor.user?.created_at || Date.now()),
+            updatedAt: new Date(data.counselor.user?.updated_at || Date.now())
           },
           profileImage: data.counselor.profile_image,
           bio: data.counselor.bio,

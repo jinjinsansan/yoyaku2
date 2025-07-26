@@ -114,7 +114,7 @@ export const CounselorDashboardPage: React.FC = () => {
           // ユーザーごとに予約回数を集計
           const userMap: Record<string, { id: string, name: string, email: string, count: number }> = {};
           data.forEach((b: any) => {
-            if (b.user) {
+            if (b.user && b.user.id) {
               if (!userMap[b.user.id]) {
                 userMap[b.user.id] = { ...b.user, count: 1 };
               } else {

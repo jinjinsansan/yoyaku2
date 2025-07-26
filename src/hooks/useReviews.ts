@@ -33,32 +33,34 @@ export const useReviews = (counselorId?: string) => {
 
       if (error) throw error;
 
-      const formattedReviews: Review[] = data.map(review => ({
-        id: review.id,
-        userId: review.user_id,
-        counselorId: review.counselor_id,
-        bookingId: review.booking_id,
-        user: {
-          id: review.user.id,
-          email: review.user.email,
-          name: review.user.name,
-          phone: review.user.phone,
-          avatar: review.user.avatar,
-          createdAt: new Date(review.user.created_at),
-          updatedAt: new Date(review.user.updated_at)
-        },
-        counselor: {
-          id: review.counselor.id,
-          userId: review.counselor.user_id,
+      const formattedReviews: Review[] = data
+        .filter(review => review.user && review.counselor && review.counselor.user) // nullチェック
+        .map(review => ({
+          id: review.id,
+          userId: review.user_id,
+          counselorId: review.counselor_id,
+          bookingId: review.booking_id,
           user: {
-            id: review.counselor.user.id,
-            email: review.counselor.user.email,
-            name: review.counselor.user.name,
-            phone: review.counselor.user.phone,
-            avatar: review.counselor.user.avatar,
-            createdAt: new Date(review.counselor.user.created_at),
-            updatedAt: new Date(review.counselor.user.updated_at)
+            id: review.user?.id || '',
+            email: review.user?.email || '',
+            name: review.user?.name || '',
+            phone: review.user?.phone || '',
+            avatar: review.user?.avatar || '',
+            createdAt: new Date(review.user?.created_at || Date.now()),
+            updatedAt: new Date(review.user?.updated_at || Date.now())
           },
+          counselor: {
+            id: review.counselor?.id || '',
+            userId: review.counselor?.user_id || '',
+            user: {
+              id: review.counselor.user?.id || '',
+              email: review.counselor.user?.email || '',
+              name: review.counselor.user?.name || '',
+              phone: review.counselor.user?.phone || '',
+              avatar: review.counselor.user?.avatar || '',
+              createdAt: new Date(review.counselor.user?.created_at || Date.now()),
+              updatedAt: new Date(review.counselor.user?.updated_at || Date.now())
+            },
           profileImage: review.counselor.profile_image,
           bio: review.counselor.bio,
           specialties: Array.isArray(review.counselor.specialties) && review.counselor.specialties.length > 0 

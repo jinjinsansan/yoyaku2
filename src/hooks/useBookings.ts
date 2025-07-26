@@ -35,31 +35,33 @@ export const useBookings = () => {
 
       if (error) throw error;
 
-      const formattedBookings: Booking[] = data.map(booking => ({
-        id: booking.id,
-        userId: booking.user_id,
-        counselorId: booking.counselor_id,
-        user: {
-          id: booking.user.id,
-          email: booking.user.email,
-          name: booking.user.name,
-          phone: booking.user.phone,
-          avatar: booking.user.avatar,
-          createdAt: new Date(booking.user.created_at),
-          updatedAt: new Date(booking.user.updated_at)
-        },
-        counselor: {
-          id: booking.counselor.id,
-          userId: booking.counselor.user_id,
+      const formattedBookings: Booking[] = data
+        .filter(booking => booking.user && booking.counselor && booking.counselor.user) // nullチェック
+        .map(booking => ({
+          id: booking.id,
+          userId: booking.user_id,
+          counselorId: booking.counselor_id,
           user: {
-            id: booking.counselor.user.id,
-            email: booking.counselor.user.email,
-            name: booking.counselor.user.name,
-            phone: booking.counselor.user.phone,
-            avatar: booking.counselor.user.avatar,
-            createdAt: new Date(booking.counselor.user.created_at),
-            updatedAt: new Date(booking.counselor.user.updated_at)
+            id: booking.user?.id || '',
+            email: booking.user?.email || '',
+            name: booking.user?.name || '',
+            phone: booking.user?.phone || '',
+            avatar: booking.user?.avatar || '',
+            createdAt: new Date(booking.user?.created_at || Date.now()),
+            updatedAt: new Date(booking.user?.updated_at || Date.now())
           },
+          counselor: {
+            id: booking.counselor?.id || '',
+            userId: booking.counselor?.user_id || '',
+            user: {
+              id: booking.counselor.user?.id || '',
+              email: booking.counselor.user?.email || '',
+              name: booking.counselor.user?.name || '',
+              phone: booking.counselor.user?.phone || '',
+              avatar: booking.counselor.user?.avatar || '',
+              createdAt: new Date(booking.counselor.user?.created_at || Date.now()),
+              updatedAt: new Date(booking.counselor.user?.updated_at || Date.now())
+            },
           profileImage: booking.counselor.profile_image,
           bio: booking.counselor.bio,
           specialties: Array.isArray(booking.counselor.specialties) && booking.counselor.specialties.length > 0 

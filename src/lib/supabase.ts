@@ -31,7 +31,7 @@ export const auth = {
     if (error) throw error;
     
     // ユーザープロフィールを作成
-    if (data.user) {
+    if (data.user && data.user.id) {
       const { error: profileError } = await supabase
         .from('users')
         .insert({

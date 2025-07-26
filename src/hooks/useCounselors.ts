@@ -25,24 +25,29 @@ export const useCounselors = () => {
 
       if (error) throw error;
 
-      const formattedCounselors: Counselor[] = data.map(counselor => ({
-        id: counselor.id,
-        userId: counselor.user_id,
-        user: {
-          id: counselor.user.id,
-          email: counselor.user.email,
-          name: counselor.user.name,
-          phone: counselor.user.phone,
-          avatar: counselor.user.avatar,
-          createdAt: new Date(counselor.user.created_at),
-          updatedAt: new Date(counselor.user.updated_at)
-        },
-        profileImage: counselor.profile_image,
+      // デバッグ用: 取得データを出力
+      console.log('counselors raw data:', data);
+
+      const formattedCounselors: Counselor[] = data
+        .filter(counselor => counselor.user && counselor.user.id) // userとidが必須
+        .map(counselor => ({
+          id: counselor.id,
+          userId: counselor.user_id,
+          user: {
+            id: counselor.user?.id || '',
+            email: counselor.user?.email || '',
+            name: counselor.user?.name || '',
+            phone: counselor.user?.phone || '',
+            avatar: counselor.user?.avatar || '',
+            createdAt: new Date(counselor.user?.created_at || Date.now()),
+            updatedAt: new Date(counselor.user?.updated_at || Date.now())
+          },
+        profileImage: counselor.profile_image || undefined,
         bio: counselor.bio,
         specialties: Array.isArray(counselor.specialties) && counselor.specialties.length > 0 
           ? counselor.specialties.filter(s => s && s.trim().length > 0)
           : [],
-        profileUrl: counselor.profile_url,
+        profileUrl: counselor.profile_url || undefined,
         hourlyRate: counselor.hourly_rate,
         isActive: counselor.is_active,
         rating: counselor.rating,
