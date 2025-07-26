@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Star, 
@@ -27,6 +27,16 @@ export const CounselorDetailPage: React.FC = () => {
   const { counselor, loading: counselorLoading, error } = useCounselor(id!);
   const { schedules, loading: schedulesLoading } = useSchedules(id);
   const { reviews, loading: reviewsLoading, error: reviewsError } = useReviews(id);
+
+  // 無限ループ防止のため一度だけidを出力
+  const didLog = useRef(false);
+  useEffect(() => {
+    if (!didLog.current) {
+      console.log('🔍 DEBUG: CounselorDetailPage id:', id);
+      console.log('🔍 DEBUG: useSchedules schedules:', schedules);
+      didLog.current = true;
+    }
+  }, [id, schedules]);
 
   const loading = counselorLoading || schedulesLoading;
 
