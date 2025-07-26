@@ -33,6 +33,7 @@ export const CounselorDashboardPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [isCounselor, setIsCounselor] = useState<boolean | null>(null);
+  const [counselorId, setCounselorId] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // プロフィール編集用state
@@ -73,6 +74,10 @@ export const CounselorDashboardPage: React.FC = () => {
         const { data, error } = await supabase.from('counselors').select('id').eq('user_id', user.id).limit(1);
         console.log('user.id:', user.id, 'counselors data:', data, 'error:', error);
         setIsCounselor(Array.isArray(data) && data.length > 0);
+        // counselorIdを設定
+        if (data && data.length > 0) {
+          setCounselorId(data[0].id);
+        }
         if (error) {
           console.error('counselors判定APIエラー', error);
         }
@@ -592,7 +597,7 @@ export const CounselorDashboardPage: React.FC = () => {
             </Card>
           )}
           {activeTab === 'schedule' && (
-            <ScheduleManager counselorId={user?.id || ''} />
+            <ScheduleManager counselorId={counselorId} />
           )}
           {activeTab === 'memo' && (
             <Card className="p-6">
