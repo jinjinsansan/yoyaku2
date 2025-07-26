@@ -181,15 +181,15 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
 
       {/* スケジュール表示 */}
       <div className="space-y-4">
-        {DAYS_OF_WEEK.map((day, dayIndex) => {
-          const daySchedules = getSchedulesForDay(day.value);
-          const weekDate = weekDates[dayIndex];
+        {weekDates.map((date, dayIndex) => {
+          const dayOfWeek = date.getDay();
+          const daySchedules = getSchedulesForDay(dayOfWeek);
           
           return (
-            <div key={day.value} className="border rounded-lg p-4">
+            <div key={dayOfWeek} className="border rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-medium text-slate-800">
-                  {day.fullLabel} ({weekDate.getMonth() + 1}/{weekDate.getDate()})
+                  {DAYS_OF_WEEK[dayOfWeek].fullLabel} ({date.getMonth() + 1}/{date.getDate()})
                 </h3>
                 {daySchedules.length > 0 && (
                   <span className="text-sm text-slate-500">
@@ -205,12 +205,12 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {daySchedules.map((schedule, index) => {
-                    const isSelected = isTimeSlotSelected(day.value, schedule.startTime);
+                    const isSelected = isTimeSlotSelected(dayOfWeek, schedule.startTime);
                     
                     return (
                       <button
                         key={index}
-                        onClick={() => handleTimeSlotClick(day.value, schedule.startTime, schedule.endTime)}
+                        onClick={() => handleTimeSlotClick(dayOfWeek, schedule.startTime, schedule.endTime)}
                         className={`p-3 rounded-lg border transition-all ${
                           isSelected
                             ? 'bg-indigo-100 border-indigo-300 text-indigo-800'
