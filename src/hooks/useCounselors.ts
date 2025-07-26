@@ -25,8 +25,7 @@ export const useCounselors = () => {
 
       if (error) throw error;
 
-      // デバッグ用: 取得データを出力
-      console.log('counselors raw data:', data);
+      // デバッグログを削除
 
       const formattedCounselors: Counselor[] = data
         .filter(counselor => counselor.user && counselor.user.id) // userとidが必須

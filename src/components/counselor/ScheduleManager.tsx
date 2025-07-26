@@ -90,8 +90,7 @@ export const ScheduleManager: React.FC<ScheduleManagerProps> = ({ counselorId })
       setSaving(true);
       setMessage('');
 
-      console.log('🔍 DEBUG: ScheduleManager saveSchedules - counselorId:', counselorId);
-      console.log('🔍 DEBUG: ScheduleManager saveSchedules - schedules to save:', schedules);
+          // デバッグログを削除
 
       // 既存のスケジュールを削除
       const { error: deleteError } = await supabase
@@ -111,7 +110,7 @@ export const ScheduleManager: React.FC<ScheduleManagerProps> = ({ counselorId })
           is_available: schedule.isAvailable,
         }));
         
-        console.log('🔍 DEBUG: ScheduleManager saveSchedules - insertData:', insertData);
+        // デバッグログを削除
 
         const { error: insertError } = await supabase
           .from('schedules')

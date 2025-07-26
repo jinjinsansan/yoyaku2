@@ -72,7 +72,7 @@ export const CounselorDashboardPage: React.FC = () => {
     if (user) {
       (async () => {
         const { data, error } = await supabase.from('counselors').select('id').eq('user_id', user.id).limit(1);
-        console.log('user.id:', user.id, 'counselors data:', data, 'error:', error);
+        // デバッグログを削除
         setIsCounselor(Array.isArray(data) && data.length > 0);
         // counselorIdを設定
         if (data && data.length > 0) {

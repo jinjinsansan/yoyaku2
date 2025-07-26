@@ -34,14 +34,14 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
   useEffect(() => {
     if (externalSchedules) {
       // 外部からスケジュールが渡された場合
-      console.log('🔍 DEBUG: externalSchedules received:', externalSchedules);
+      // デバッグログを削除
       const formattedSchedules: TimeSlot[] = externalSchedules.map(schedule => ({
         date: schedule.date,
         startTime: schedule.startTime,
         endTime: schedule.endTime,
         isAvailable: schedule.isAvailable,
       }));
-      console.log('🔍 DEBUG: formattedSchedules:', formattedSchedules);
+      // デバッグログを削除
       setSchedules(formattedSchedules);
       setLoading(false);
     } else {
@@ -70,7 +70,7 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
 
       if (error) throw error;
 
-      console.log('🔍 DEBUG: Supabase data:', data);
+              // デバッグログを削除
 
       const formattedSchedules: TimeSlot[] = data.map(schedule => ({
         date: schedule.date,
@@ -79,7 +79,7 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
         isAvailable: schedule.is_available,
       }));
 
-      console.log('🔍 DEBUG: Internal formattedSchedules:', formattedSchedules);
+              // デバッグログを削除
       setSchedules(formattedSchedules);
     } catch (error: any) {
       console.error('スケジュール取得エラー:', error);
@@ -91,7 +91,7 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
   const getSchedulesForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
     const daySchedules = schedules.filter(schedule => schedule.date === dateStr);
-    console.log('🔍 DEBUG: getSchedulesForDate - date:', date, 'dateStr:', dateStr, 'schedules:', schedules, 'daySchedules:', daySchedules);
+    // デバッグログを削除
     return daySchedules;
   };
 

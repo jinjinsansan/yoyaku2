@@ -32,8 +32,7 @@ export const CounselorDetailPage: React.FC = () => {
   const didLog = useRef(false);
   useEffect(() => {
     if (!didLog.current) {
-      console.log('🔍 DEBUG: CounselorDetailPage id:', id);
-      console.log('🔍 DEBUG: useSchedules schedules:', schedules);
+        // デバッグログを削除
       didLog.current = true;
     }
   }, [id, schedules]);

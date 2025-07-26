@@ -16,7 +16,7 @@ const MENU = [
 
 export const AdminPage: React.FC = () => {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-  console.log('AdminPage user:', user, 'isAuthenticated:', isAuthenticated, 'authLoading:', authLoading);
+  // デバッグログを削除
   const [activeTab, setActiveTab] = useState('counselors');
   // フォーム用state
   const [name, setName] = useState('');
