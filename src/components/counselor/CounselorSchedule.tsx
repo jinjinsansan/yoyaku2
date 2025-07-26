@@ -10,6 +10,7 @@ interface CounselorScheduleProps {
   onTimeSlotSelect?: (dayOfWeek: number, startTime: string, endTime: string) => void;
   selectedDate?: Date;
   selectedTime?: string;
+  schedules?: any[]; // 外部からスケジュールを受け取る場合
 }
 
 interface TimeSlot {
@@ -34,14 +35,28 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
   onTimeSlotSelect,
   selectedDate,
   selectedTime,
+  schedules: externalSchedules,
 }) => {
   const [schedules, setSchedules] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentWeek, setCurrentWeek] = useState(new Date());
 
   useEffect(() => {
-    fetchSchedules();
-  }, [counselorId]);
+    if (externalSchedules) {
+      // 外部からスケジュールが渡された場合
+      const formattedSchedules: TimeSlot[] = externalSchedules.map(schedule => ({
+        dayOfWeek: schedule.dayOfWeek,
+        startTime: schedule.startTime,
+        endTime: schedule.endTime,
+        isAvailable: schedule.isAvailable,
+      }));
+      setSchedules(formattedSchedules);
+      setLoading(false);
+    } else {
+      // 内部でスケジュールを取得
+      fetchSchedules();
+    }
+  }, [counselorId, externalSchedules]);
 
   const fetchSchedules = async () => {
     try {
@@ -71,7 +86,8 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
   };
 
   const getSchedulesForDay = (dayOfWeek: number) => {
-    return schedules.filter(schedule => schedule.dayOfWeek === dayOfWeek);
+    const daySchedules = schedules.filter(schedule => schedule.dayOfWeek === dayOfWeek);
+    return daySchedules;
   };
 
   const formatTime = (time: string) => {

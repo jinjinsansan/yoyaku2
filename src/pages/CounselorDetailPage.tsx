@@ -12,6 +12,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { useCounselor } from '../hooks/useCounselor';
+import { useSchedules } from '../hooks/useSchedules';
 import { useReviews } from '../hooks/useReviews';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -23,8 +24,11 @@ import { formatCurrency } from '../lib/utils';
 export const CounselorDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { counselor, loading, error } = useCounselor(id!);
+  const { counselor, loading: counselorLoading, error } = useCounselor(id!);
+  const { schedules, loading: schedulesLoading } = useSchedules(id);
   const { reviews, loading: reviewsLoading, error: reviewsError } = useReviews(id);
+
+  const loading = counselorLoading || schedulesLoading;
 
   if (loading) {
     return (
@@ -147,7 +151,10 @@ export const CounselorDetailPage: React.FC = () => {
             </Card>
 
             {/* スケジュール */}
-            <CounselorSchedule counselorId={counselor.id} />
+            <CounselorSchedule 
+              counselorId={counselor.id}
+              schedules={schedules}
+            />
 
             {/* レビュー・評価 */}
             <Card>
