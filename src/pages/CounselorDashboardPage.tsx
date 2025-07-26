@@ -18,6 +18,15 @@ const MENU = [
   { key: 'memo', label: 'メモ書き' },
 ];
 
+// 専門分野タグ一覧
+const SPECIALTY_TAGS = [
+  'EMDR療法', 'PTSD', 'PTSD治療', 'うつ病', 'カップルカウンセリング', 'キャリアカウンセリング',
+  'コミュニケーション', 'ストレス管理', 'トラウマケア', 'リハビリテーション', 'ワークライフバランス',
+  '不安症', '不安障害', '人間関係', '依存症治療', '再発防止', '回復支援', '子育て支援',
+  '学校生活相談', '安全な環境作り', '家族療法', '思春期カウンセリング', '発達障害支援',
+  '職場メンタルヘルス', '認知行動療法', '転職相談'
+];
+
 export const CounselorDashboardPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
@@ -458,6 +467,30 @@ export const CounselorDashboardPage: React.FC = () => {
                 
                 <Textarea label="自己紹介" value={profile.bio} onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))} />
                 <Input label="専門分野（カンマ区切り）" value={profile.specialties} onChange={e => setProfile(p => ({ ...p, specialties: e.target.value }))} />
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {SPECIALTY_TAGS.map(tag => {
+                    const selected = profile.specialties.split(',').map(s => s.trim()).includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        className={`px-3 py-1 rounded-full border text-sm transition-colors ${selected ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-indigo-50'}`}
+                        onClick={() => {
+                          const current = profile.specialties.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                          let next;
+                          if (selected) {
+                            next = current.filter(s => s !== tag);
+                          } else {
+                            next = [...current, tag];
+                          }
+                          setProfile(p => ({ ...p, specialties: next.join(',') }));
+                        }}
+                      >
+                        {tag}
+                      </button>
+                    );
+                  })}
+                </div>
                 <Button type="submit" loading={profileLoading}>保存</Button>
                 {profileMsg && <div className="text-sm mt-2">{profileMsg}</div>}
               </form>
