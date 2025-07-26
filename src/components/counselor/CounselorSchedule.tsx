@@ -44,12 +44,14 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
   useEffect(() => {
     if (externalSchedules) {
       // 外部からスケジュールが渡された場合
+      console.log('🔍 DEBUG: externalSchedules received:', externalSchedules);
       const formattedSchedules: TimeSlot[] = externalSchedules.map(schedule => ({
         dayOfWeek: schedule.dayOfWeek,
         startTime: schedule.startTime,
         endTime: schedule.endTime,
         isAvailable: schedule.isAvailable,
       }));
+      console.log('🔍 DEBUG: formattedSchedules:', formattedSchedules);
       setSchedules(formattedSchedules);
       setLoading(false);
     } else {
@@ -70,6 +72,8 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
 
       if (error) throw error;
 
+      console.log('🔍 DEBUG: Supabase data:', data);
+
       const formattedSchedules: TimeSlot[] = data.map(schedule => ({
         dayOfWeek: schedule.day_of_week,
         startTime: schedule.start_time,
@@ -77,6 +81,7 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
         isAvailable: schedule.is_available,
       }));
 
+      console.log('🔍 DEBUG: Internal formattedSchedules:', formattedSchedules);
       setSchedules(formattedSchedules);
     } catch (error: any) {
       console.error('スケジュール取得エラー:', error);
@@ -85,10 +90,11 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
     }
   };
 
-  // getSchedulesForDay: dayOfWeek -> date: Date で受ける
   const getSchedulesForDay = (date: Date) => {
     const dayOfWeek = date.getDay();
-    return schedules.filter(schedule => schedule.dayOfWeek === dayOfWeek);
+    const daySchedules = schedules.filter(schedule => schedule.dayOfWeek === dayOfWeek);
+    console.log('🔍 DEBUG: getSchedulesForDay - date:', date, 'dayOfWeek:', dayOfWeek, 'schedules:', schedules, 'daySchedules:', daySchedules);
+    return daySchedules;
   };
 
   const formatTime = (time: string) => {
