@@ -7,28 +7,18 @@ import { Calendar, Clock, Check, X } from 'lucide-react';
 
 interface CounselorScheduleProps {
   counselorId: string;
-  onTimeSlotSelect?: (dayOfWeek: number, startTime: string, endTime: string) => void;
+  onTimeSlotSelect?: (date: string, startTime: string, endTime: string) => void;
   selectedDate?: Date;
   selectedTime?: string;
   schedules?: any[]; // 外部からスケジュールを受け取る場合
 }
 
 interface TimeSlot {
-  dayOfWeek: number;
+  date: string;
   startTime: string;
   endTime: string;
   isAvailable: boolean;
 }
-
-const DAYS_OF_WEEK = [
-  { value: 0, label: '日', fullLabel: '日曜日' },
-  { value: 1, label: '月', fullLabel: '月曜日' },
-  { value: 2, label: '火', fullLabel: '火曜日' },
-  { value: 3, label: '水', fullLabel: '水曜日' },
-  { value: 4, label: '木', fullLabel: '木曜日' },
-  { value: 5, label: '金', fullLabel: '金曜日' },
-  { value: 6, label: '土', fullLabel: '土曜日' },
-];
 
 export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
   counselorId,
@@ -46,7 +36,7 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
       // 外部からスケジュールが渡された場合
       console.log('🔍 DEBUG: externalSchedules received:', externalSchedules);
       const formattedSchedules: TimeSlot[] = externalSchedules.map(schedule => ({
-        dayOfWeek: schedule.dayOfWeek,
+        date: schedule.date,
         startTime: schedule.startTime,
         endTime: schedule.endTime,
         isAvailable: schedule.isAvailable,
@@ -63,19 +53,27 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
   const fetchSchedules = async () => {
     try {
       setLoading(true);
+      
+      // 今日から1週間後のスケジュールを取得
+      const today = new Date();
+      const endDate = new Date(today);
+      endDate.setDate(today.getDate() + 7);
+      
       const { data, error } = await supabase
         .from('schedules')
         .select('*')
         .eq('counselor_id', counselorId)
         .eq('is_available', true)
-        .order('day_of_week');
+        .gte('date', today.toISOString().split('T')[0])
+        .lte('date', endDate.toISOString().split('T')[0])
+        .order('date, start_time');
 
       if (error) throw error;
 
       console.log('🔍 DEBUG: Supabase data:', data);
 
       const formattedSchedules: TimeSlot[] = data.map(schedule => ({
-        dayOfWeek: schedule.day_of_week,
+        date: schedule.date,
         startTime: schedule.start_time,
         endTime: schedule.end_time,
         isAvailable: schedule.is_available,
@@ -90,10 +88,10 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
     }
   };
 
-  const getSchedulesForDay = (date: Date) => {
-    const dayOfWeek = date.getDay();
-    const daySchedules = schedules.filter(schedule => schedule.dayOfWeek === dayOfWeek);
-    console.log('🔍 DEBUG: getSchedulesForDay - date:', date, 'dayOfWeek:', dayOfWeek, 'schedules:', schedules, 'daySchedules:', daySchedules);
+  const getSchedulesForDate = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    const daySchedules = schedules.filter(schedule => schedule.date === dateStr);
+    console.log('🔍 DEBUG: getSchedulesForDate - date:', date, 'dateStr:', dateStr, 'schedules:', schedules, 'daySchedules:', daySchedules);
     return daySchedules;
   };
 
@@ -141,16 +139,16 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
     return date.toDateString() === selectedDate.toDateString();
   };
 
-  const handleTimeSlotClick = (dayOfWeek: number, startTime: string, endTime: string) => {
+  const handleTimeSlotClick = (date: string, startTime: string, endTime: string) => {
     if (onTimeSlotSelect) {
-      onTimeSlotSelect(dayOfWeek, startTime, endTime);
+      onTimeSlotSelect(date, startTime, endTime);
     }
   };
 
-  const isTimeSlotSelected = (dayOfWeek: number, startTime: string) => {
+  const isTimeSlotSelected = (date: string, startTime: string) => {
     if (!selectedDate || !selectedTime) return false;
-    const selectedDayOfWeek = selectedDate.getDay();
-    return selectedDayOfWeek === dayOfWeek && selectedTime === startTime;
+    const selectedDateStr = selectedDate.toISOString().split('T')[0];
+    return selectedDateStr === date && selectedTime === startTime;
   };
 
   if (loading) {
@@ -196,7 +194,9 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
                 : 'bg-slate-50 text-slate-600'
             }`}
           >
-            <div className="text-sm font-medium">{DAYS_OF_WEEK[date.getDay()].label}</div>
+            <div className="text-sm font-medium">
+              {['日', '月', '火', '水', '木', '金', '土'][date.getDay()]}
+            </div>
             <div className="text-lg">{date.getDate()}</div>
           </div>
         ))}
@@ -205,14 +205,13 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
       {/* スケジュール表示 */}
       <div className="space-y-4">
         {weekDates.map((date, dayIndex) => {
-          const dayOfWeek = date.getDay();
-          const daySchedules = getSchedulesForDay(date);
+          const daySchedules = getSchedulesForDate(date);
           
           return (
-            <div key={dayOfWeek} className="border rounded-lg p-4">
+            <div key={dayIndex} className="border rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-medium text-slate-800">
-                  {DAYS_OF_WEEK[dayOfWeek].fullLabel} ({date.getMonth() + 1}/{date.getDate()})
+                  {date.getMonth() + 1}月{date.getDate()}日（{['日', '月', '火', '水', '木', '金', '土'][date.getDay()]}）
                 </h3>
                 {daySchedules.length > 0 && (
                   <span className="text-sm text-slate-500">
@@ -228,12 +227,12 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {daySchedules.map((schedule, index) => {
-                    const isSelected = isTimeSlotSelected(dayOfWeek, schedule.startTime);
+                    const isSelected = isTimeSlotSelected(schedule.date, schedule.startTime);
                     
                     return (
                       <button
                         key={index}
-                        onClick={() => handleTimeSlotClick(dayOfWeek, schedule.startTime, schedule.endTime)}
+                        onClick={() => handleTimeSlotClick(schedule.date, schedule.startTime, schedule.endTime)}
                         className={`p-3 rounded-lg border transition-all ${
                           isSelected
                             ? 'bg-indigo-100 border-indigo-300 text-indigo-800'

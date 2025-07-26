@@ -86,7 +86,7 @@ export interface Schedule {
   id: string;
   counselorId: string;
   counselor: Counselor;
-  dayOfWeek: number; // 0-6 (Sunday-Saturday)
+  date: string; // YYYY-MM-DD format
   startTime: string; // HH:mm format
   endTime: string; // HH:mm format
   isAvailable: boolean;

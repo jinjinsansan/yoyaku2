@@ -2,21 +2,22 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Schedule } from '../types';
 
-export const useSchedules = (counselorId?: string) => {
+export const useSchedules = (counselorId?: string, selectedDate?: Date) => {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (counselorId) {
-      fetchSchedules(counselorId);
+      fetchSchedules(counselorId, selectedDate);
     }
-  }, [counselorId]);
+  }, [counselorId, selectedDate]);
 
-  const fetchSchedules = async (id: string) => {
+  const fetchSchedules = async (id: string, date?: Date) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      let query = supabase
         .from('schedules')
         .select(`
           *,
@@ -26,8 +27,19 @@ export const useSchedules = (counselorId?: string) => {
           )
         `)
         .eq('counselor_id', id)
-        .eq('is_available', true)
-        .order('day_of_week');
+        .eq('is_available', true);
+
+      // 特定の日付が指定されている場合はその日のスケジュールのみ取得
+      if (date) {
+        const dateStr = date.toISOString().split('T')[0];
+        query = query.eq('date', dateStr);
+      } else {
+        // 日付が指定されていない場合は今日以降のスケジュールを取得
+        const today = new Date().toISOString().split('T')[0];
+        query = query.gte('date', today);
+      }
+
+      const { data, error } = await query.order('date, start_time');
 
       if (error) throw error;
 
@@ -61,7 +73,7 @@ export const useSchedules = (counselorId?: string) => {
           createdAt: new Date(schedule.counselor.created_at),
           updatedAt: new Date(schedule.counselor.updated_at)
         },
-        dayOfWeek: schedule.day_of_week,
+        date: schedule.date,
         startTime: schedule.start_time,
         endTime: schedule.end_time,
         isAvailable: schedule.is_available
@@ -75,5 +87,5 @@ export const useSchedules = (counselorId?: string) => {
     }
   };
 
-  return { schedules, loading, error, refetch: () => counselorId && fetchSchedules(counselorId) };
+  return { schedules, loading, error, refetch: () => counselorId && fetchSchedules(counselorId, selectedDate) };
 };

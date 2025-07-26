@@ -265,7 +265,7 @@ export interface Database {
         Row: {
           id: string
           counselor_id: string
-          day_of_week: number
+          date: string
           start_time: string
           end_time: string
           is_available: boolean
@@ -275,7 +275,7 @@ export interface Database {
         Insert: {
           id?: string
           counselor_id: string
-          day_of_week: number
+          date: string
           start_time: string
           end_time: string
           is_available?: boolean
@@ -285,7 +285,7 @@ export interface Database {
         Update: {
           id?: string
           counselor_id?: string
-          day_of_week?: number
+          date?: string
           start_time?: string
           end_time?: string
           is_available?: boolean

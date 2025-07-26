@@ -18,18 +18,9 @@ export const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
   onDateTimeSelect,
   counselorId
 }) => {
-  const handleTimeSlotSelect = (dayOfWeek: number, startTime: string, endTime: string) => {
-    // 次の該当する曜日の日付を計算
-    const today = new Date();
-    const targetDate = new Date(today);
-    const daysUntilTarget = (dayOfWeek - today.getDay() + 7) % 7;
-    
-    // 今日がその曜日でない場合は、次の該当曜日を設定
-    if (daysUntilTarget === 0 && today.getDay() === dayOfWeek) {
-      targetDate.setDate(today.getDate() + 7);
-    } else {
-      targetDate.setDate(today.getDate() + daysUntilTarget);
-    }
+  const handleTimeSlotSelect = (date: string, startTime: string, endTime: string) => {
+    // 日付文字列からDateオブジェクトを作成
+    const targetDate = new Date(date);
     
     // 時間を設定
     const [hours, minutes] = startTime.split(':').map(Number);
