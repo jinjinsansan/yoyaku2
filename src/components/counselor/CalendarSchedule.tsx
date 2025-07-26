@@ -187,49 +187,58 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
   const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
 
   return (
-    <div className="space-y-6">
-      {/* ヘッダー */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-2xl font-bold text-gray-900">カレンダースケジュール管理</h2>
-        <div className="flex items-center space-x-2">
-          <Button 
-            onClick={goToPreviousMonth} 
-            variant="outline" 
-            size="sm"
-            className="px-3 py-2"
-          >
-            ←
-          </Button>
-          <span className="text-lg font-semibold w-32 text-center">
-            {currentMonth.getFullYear()}年{currentMonth.getMonth() + 1}月
-          </span>
-          <Button 
-            onClick={goToNextMonth} 
-            variant="outline" 
-            size="sm"
-            className="px-3 py-2"
-          >
-            →
-          </Button>
+    <div className="space-y-8">
+      {/* 美しいヘッダー */}
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 rounded-2xl shadow-2xl p-8 text-white">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+          <div>
+            <h2 className="text-4xl font-bold mb-2 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+              カレンダースケジュール管理
+            </h2>
+            <p className="text-blue-100 text-lg">スケジュールを美しく管理しましょう</p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={goToPreviousMonth} 
+              className="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110 backdrop-blur-sm"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl px-6 py-3 text-center">
+              <span className="text-2xl font-bold">
+                {currentMonth.getFullYear()}年{currentMonth.getMonth() + 1}月
+              </span>
+            </div>
+            <button 
+              onClick={goToNextMonth} 
+              className="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110 backdrop-blur-sm"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* カレンダー */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        {/* 美しいカレンダー */}
         <div className="xl:col-span-2">
-          <Card>
-            <div className="p-4">
-              {/* 曜日ヘッダー */}
-              <div className="grid grid-cols-7 gap-1 mb-2">
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+            <div className="p-8">
+              {/* 美しい曜日ヘッダー */}
+              <div className="grid grid-cols-7 gap-3 mb-6">
                 {weekDays.map(day => (
-                  <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+                  <div key={day} className="text-center text-sm font-bold text-gray-600 py-4 bg-gradient-to-b from-gray-50 to-gray-100 rounded-xl border border-gray-200">
                     {day}
                   </div>
                 ))}
               </div>
 
-              {/* カレンダーグリッド */}
-              <div className="grid grid-cols-7 gap-1">
+              {/* 美しいカレンダーグリッド */}
+              <div className="grid grid-cols-7 gap-3">
                 {days.map(({ date, isCurrentMonth }, index) => {
                   const dateSchedules = getSchedulesForDate(date);
                   const hasSchedules = dateSchedules.length > 0;
@@ -241,21 +250,20 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
                       key={index}
                       onClick={() => handleDateClick(date)}
                       className={`
-                        min-h-20 p-2 border rounded cursor-pointer transition-colors
-                        ${isCurrentMonth ? 'bg-white' : 'bg-gray-50'}
-                        ${isSelected ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' : 'border-gray-200'}
-                        ${hasSchedules ? 'border-green-300 bg-green-50' : ''}
-                        hover:border-blue-300 hover:shadow-sm
+                        min-h-28 p-4 border-2 rounded-2xl cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-lg
+                        ${isCurrentMonth ? 'bg-white' : 'bg-gray-50/50'}
+                        ${isSelected ? 'border-purple-500 bg-gradient-to-br from-purple-50 to-blue-50 ring-4 ring-purple-200 shadow-xl scale-105' : 'border-gray-200 hover:border-purple-300'}
+                        ${hasSchedules ? 'border-green-400 bg-gradient-to-br from-green-50 to-emerald-50' : ''}
                       `}
                     >
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-xl font-bold text-gray-900 mb-3">
                         {date.getDate()}
                       </div>
                       {hasSchedules && (
-                        <div className="mt-1">
-                          <Badge variant="success" size="sm">
+                        <div className="mt-3">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-sm">
                             {dateSchedules.length}枠
-                          </Badge>
+                          </span>
                         </div>
                       )}
                     </div>
@@ -263,95 +271,127 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
                 })}
               </div>
             </div>
-          </Card>
+          </div>
         </div>
 
-        {/* 時間枠設定 */}
+        {/* 美しい時間枠設定 */}
         <div className="xl:col-span-1">
-          <Card>
-            <div className="p-4">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900">
-                {selectedDate ? (
-                  `${selectedDate.getFullYear()}年${selectedDate.getMonth() + 1}月${selectedDate.getDate()}日`
-                ) : (
-                  '日付を選択してください'
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+            <div className="p-8">
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold mb-2 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                  {selectedDate ? (
+                    `${selectedDate.getFullYear()}年${selectedDate.getMonth() + 1}月${selectedDate.getDate()}日`
+                  ) : (
+                    '日付を選択してください'
+                  )}
+                </h3>
+                {selectedDate && (
+                  <p className="text-gray-600">スケジュールを設定しましょう</p>
                 )}
-              </h3>
+              </div>
 
               {selectedDate && (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {timeSlots.length === 0 && (
-                    <div className="text-gray-500 text-center py-4 text-sm">
-                      時間枠が設定されていません
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <p className="text-gray-500 text-lg font-medium">時間枠が設定されていません</p>
+                      <p className="text-gray-400 text-sm mt-2">下のボタンから追加してください</p>
                     </div>
                   )}
                   
                   {timeSlots.map((slot, index) => (
-                    <div key={index} className="bg-gray-50 rounded-lg p-4 space-y-3">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                        <div className="flex items-center space-x-2 flex-1">
-                          <Input
-                            type="time"
-                            value={slot.start}
-                            onChange={(e) => updateTimeSlot(index, 'start', e.target.value)}
-                            className="flex-1 w-32"
-                          />
-                          <span className="text-gray-500 font-medium">〜</span>
-                          <Input
-                            type="time"
-                            value={slot.end}
-                            onChange={(e) => updateTimeSlot(index, 'end', e.target.value)}
-                            className="flex-1 w-32"
-                          />
+                    <div key={index} className="bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 rounded-2xl p-6 border border-blue-200 shadow-lg">
+                      <div className="space-y-6">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex-1">
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">開始時間</label>
+                            <Input
+                              type="time"
+                              value={slot.start}
+                              onChange={(e) => updateTimeSlot(index, 'start', e.target.value)}
+                              className="w-full text-xl py-4 px-4 rounded-xl border-2 border-blue-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 bg-white shadow-sm"
+                            />
+                          </div>
+                          <div className="flex items-center justify-center w-12 h-12">
+                            <span className="text-2xl font-bold text-purple-600">〜</span>
+                          </div>
+                          <div className="flex-1">
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">終了時間</label>
+                            <Input
+                              type="time"
+                              value={slot.end}
+                              onChange={(e) => updateTimeSlot(index, 'end', e.target.value)}
+                              className="w-full text-xl py-4 px-4 rounded-xl border-2 border-blue-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 bg-white shadow-sm"
+                            />
+                          </div>
                         </div>
-                        <Button
-                          onClick={() => removeTimeSlot(index)}
-                          variant="outline"
-                          size="sm"
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                        >
-                          ×
-                        </Button>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id={`available-${index}`}
-                          checked={slot.is_available}
-                          onChange={(e) => updateTimeSlot(index, 'is_available', e.target.checked)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <label 
-                          htmlFor={`available-${index}`}
-                          className="text-sm text-gray-700 cursor-pointer"
-                        >
-                          利用可能
-                        </label>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <input
+                              type="checkbox"
+                              id={`available-${index}`}
+                              checked={slot.is_available}
+                              onChange={(e) => updateTimeSlot(index, 'is_available', e.target.checked)}
+                              className="w-6 h-6 rounded-lg border-2 border-purple-300 text-purple-600 focus:ring-4 focus:ring-purple-200"
+                            />
+                            <label 
+                              htmlFor={`available-${index}`}
+                              className="text-lg text-gray-700 cursor-pointer font-semibold"
+                            >
+                              利用可能
+                            </label>
+                          </div>
+                          <button
+                            onClick={() => removeTimeSlot(index)}
+                            className="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl font-semibold hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                          >
+                            削除
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
 
-                  <Button 
+                  <button 
                     onClick={addTimeSlot} 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full py-3"
+                    className="w-full py-6 text-xl font-bold rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-xl border-2 border-transparent hover:border-blue-400"
                   >
-                    + 時間枠を追加
-                  </Button>
+                    <svg className="w-6 h-6 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    時間枠を追加
+                  </button>
 
-                  <Button
+                  <button
                     onClick={saveSchedules}
                     disabled={isLoading}
-                    className="w-full py-3"
+                    className="w-full py-6 text-xl font-bold rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-2xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isLoading ? '保存中...' : '保存'}
-                  </Button>
+                    {isLoading ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
+                        保存中...
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center">
+                        <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        保存
+                      </div>
+                    )}
+                  </button>
                 </div>
               )}
             </div>
-          </Card>
+          </div>
         </div>
       </div>
     </div>

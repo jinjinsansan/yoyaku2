@@ -11,13 +11,52 @@ import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { CalendarSchedule } from '../components/counselor/CalendarSchedule';
 
 const MENU = [
-  { key: 'profile', label: 'プロフィール編集' },
-  { key: 'schedule', label: 'スケジュール管理' },
-  { key: 'bookings', label: '予約管理' },
-  { key: 'chat', label: 'チャット' },
-  { key: 'users', label: 'ユーザー一覧' },
-  { key: 'sales', label: '売上' },
-  { key: 'memo', label: 'メモ書き' },
+  { 
+    key: 'dashboard', 
+    label: 'ダッシュボード',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z" />
+      </svg>
+    )
+  },
+  { 
+    key: 'schedule', 
+    label: 'スケジュール管理',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    )
+  },
+  { 
+    key: 'bookings', 
+    label: '予約管理',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    )
+  },
+  { 
+    key: 'reviews', 
+    label: 'レビュー管理',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+      </svg>
+    )
+  },
+  { 
+    key: 'profile', 
+    label: 'プロフィール設定',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+    )
+  },
 ];
 
 // 専門分野タグ一覧
@@ -31,7 +70,7 @@ const SPECIALTY_TAGS = [
 
 export const CounselorDashboardPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [isCounselor, setIsCounselor] = useState<boolean | null>(null);
   const [counselorId, setCounselorId] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -378,274 +417,195 @@ export const CounselorDashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-slate-800 mb-8">カウンセラーダッシュボード</h1>
-        
-        {/* メニュータブ */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* 美しいヘッダー */}
         <div className="mb-8">
-          {/* デスクトップ用タブ */}
-          <div className="hidden md:flex flex-wrap gap-2">
-            {MENU.map(menu => (
-              <Button
-                key={menu.key}
-                variant={activeTab === menu.key ? 'primary' : 'outline'}
-                onClick={() => setActiveTab(menu.key)}
-                className={`
-                  px-4 py-2 rounded-lg font-medium transition-all duration-200
-                  ${activeTab === menu.key 
-                    ? 'bg-blue-600 text-white shadow-lg hover:bg-blue-700' 
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
-                  }
-                `}
-              >
-                {menu.label}
-              </Button>
-            ))}
+          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 rounded-2xl shadow-2xl p-8 text-white">
+            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+              カウンセラーダッシュボード
+            </h1>
+            <p className="text-blue-100 text-lg">ようこそ、{user?.email}さん</p>
           </div>
-          
-          {/* モバイル用タブ */}
-          <div className="md:hidden">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1">
-              <div className="grid grid-cols-2 gap-1">
-                {MENU.map(menu => (
-                  <Button
-                    key={menu.key}
-                    variant={activeTab === menu.key ? 'primary' : 'outline'}
-                    onClick={() => setActiveTab(menu.key)}
+        </div>
+
+        {/* 美しいメニュータブ */}
+        <div className="mb-8">
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+            <div className="p-2">
+              <div className="flex flex-wrap gap-2">
+                {MENU.map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => setActiveTab(item.key)}
                     className={`
-                      px-3 py-2 text-sm rounded-md font-medium transition-all duration-200
-                      ${activeTab === menu.key 
-                        ? 'bg-blue-600 text-white shadow-sm' 
-                        : 'bg-transparent text-gray-700 border-transparent hover:bg-gray-50'
+                      relative px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105
+                      ${activeTab === item.key
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-2xl ring-4 ring-purple-200 scale-105'
+                        : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-purple-100 hover:to-blue-100 hover:text-purple-700 shadow-lg hover:shadow-xl'
                       }
                     `}
                   >
-                    {menu.label}
-                  </Button>
+                    <div className="flex items-center space-x-3">
+                      <div className={`
+                        p-2 rounded-lg transition-all duration-300
+                        ${activeTab === item.key
+                          ? 'bg-white/20 backdrop-blur-sm'
+                          : 'bg-white/50'
+                        }
+                      `}>
+                        {item.icon}
+                      </div>
+                      <span className="hidden sm:inline">{item.label}</span>
+                    </div>
+                    {activeTab === item.key && (
+                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-4 h-1 bg-white rounded-full"></div>
+                    )}
+                  </button>
                 ))}
               </div>
             </div>
           </div>
         </div>
-        
-        <div>
-          {activeTab === 'profile' && (
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">プロフィール編集</h2>
-              <form className="space-y-4" onSubmit={handleProfileSave}>
-                <Input label="名" value={profile.name} onChange={e => setProfile(p => ({ ...p, name: e.target.value }))} required />
-                <Input label="メールアドレス" type="email" value={profile.email} onChange={e => setProfile(p => ({ ...p, email: e.target.value }))} required />
-                <Input label="パスワード（変更時のみ入力）" type="password" value={profile.password} onChange={e => setProfile(p => ({ ...p, password: e.target.value }))} />
+
+        {/* 美しいコンテンツエリア */}
+        <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+          <div className="p-8">
+            {activeTab === 'dashboard' && (
+              <div className="space-y-8">
+                <div className="text-center">
+                  <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    ダッシュボード
+                  </h2>
+                  <p className="text-gray-600 text-lg">カウンセラーの管理画面です</p>
+                </div>
                 
-                {/* プロフィール画像アップロード */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-slate-700">プロフィール画像</label>
-                  
-                  {/* 画像プレビュー */}
-                  {(imagePreview || profile.profileImage) && (
-                    <div className="relative inline-block">
-                      <img 
-                        src={imagePreview || profile.profileImage} 
-                        alt="プロフィール画像" 
-                        className="w-32 h-32 object-cover rounded-lg border-2 border-slate-200"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleRemoveImage}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-blue-100 text-sm font-medium">総予約数</p>
+                        <p className="text-3xl font-bold">0</p>
+                      </div>
+                      <div className="p-3 bg-white/20 rounded-xl">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
                     </div>
-                  )}
+                  </div>
                   
-                  {/* アップロードエリア */}
-                  <div
-                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                      imageUploading 
-                        ? 'border-slate-300 bg-slate-50' 
-                        : 'border-slate-300 hover:border-slate-400 hover:bg-slate-50'
-                    }`}
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                  >
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileSelect}
-                      className="hidden"
-                      disabled={imageUploading}
-                    />
-                    
-                    {imageUploading ? (
-                      <div className="space-y-2">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-600 mx-auto"></div>
-                        <p className="text-sm text-slate-600">アップロード中...</p>
+                  <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-green-100 text-sm font-medium">今月の予約</p>
+                        <p className="text-3xl font-bold">0</p>
                       </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <ImageIcon className="w-8 h-8 text-slate-400 mx-auto" />
-                        <div>
-                          <p className="text-sm text-slate-600">
-                            クリックして画像を選択、またはドラッグ&ドロップ
-                          </p>
-                          <p className="text-xs text-slate-500 mt-1">
-                            PNG, JPG, GIF (5MB以下)
-                          </p>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="mt-2"
-                        >
-                          <Upload className="w-4 h-4 mr-2" />
-                          画像を選択
-                        </Button>
+                      <div className="p-3 bg-white/20 rounded-xl">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                       </div>
-                    )}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-purple-100 text-sm font-medium">総収益</p>
+                        <p className="text-3xl font-bold">¥0</p>
+                      </div>
+                      <div className="p-3 bg-white/20 rounded-xl">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-orange-100 text-sm font-medium">評価</p>
+                        <p className="text-3xl font-bold">5.0</p>
+                      </div>
+                      <div className="p-3 bg-white/20 rounded-xl">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                
-                <Textarea label="自己紹介" value={profile.bio} onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))} />
-                <Input label="専門分野（カンマ区切り）" value={profile.specialties} onChange={e => setProfile(p => ({ ...p, specialties: e.target.value }))} />
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {SPECIALTY_TAGS.map(tag => {
-                    const selected = profile.specialties.split(',').map(s => s.trim()).includes(tag);
-                    return (
-                      <button
-                        key={tag}
-                        type="button"
-                        className={`px-3 py-1 rounded-full border text-sm transition-colors ${selected ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-indigo-50'}`}
-                        onClick={() => {
-                          const current = profile.specialties.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                          let next;
-                          if (selected) {
-                            next = current.filter(s => s !== tag);
-                          } else {
-                            next = [...current, tag];
-                          }
-                          setProfile(p => ({ ...p, specialties: next.join(',') }));
-                        }}
-                      >
-                        {tag}
-                      </button>
-                    );
-                  })}
-                </div>
-                <Button type="submit" loading={profileLoading}>保存</Button>
-                {profileMsg && <div className="text-sm mt-2">{profileMsg}</div>}
-              </form>
-            </Card>
-          )}
-          {activeTab === 'bookings' && (
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">予約管理</h2>
-              {counselorBookings.length === 0 ? (
-                <div className="text-slate-500 text-center py-8">担当する予約はありません。</div>
-              ) : (
-                <div className="space-y-4">
-                  {counselorBookings.map(booking => (
-                    <div key={booking.id} className="bg-slate-100 rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between">
-                      <div>
-                        <div className="font-semibold">{booking.user?.name} さん</div>
-                        <div className="text-xs text-slate-500">{formatDate(booking.scheduled_at)}</div>
-                        <div className="text-xs">サービス: {booking.service_type === 'monthly' ? '1ヶ月コース' : '1回分'}</div>
-                        <div className="text-xs">金額: {formatCurrency(booking.amount)}</div>
-                        <div className="text-xs">ステータス: {booking.status}</div>
-                      </div>
-                      <div className="mt-2 md:mt-0 flex gap-2">
-                        <Button size="sm" onClick={() => window.location.href = `/chat/${booking.id}`}>チャット</Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
-          )}
-          {activeTab === 'chat' && (
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">チャット一覧</h2>
-              {chatRooms.length === 0 ? (
-                <div className="text-slate-500 text-center py-8">チャットルームはありません。</div>
-              ) : (
-                <div className="space-y-4">
-                  {chatRooms.map(room => (
-                    <div key={room.id} className="bg-slate-100 rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between">
-                      <div>
-                        <div className="font-semibold">{room.booking?.user?.name} さん</div>
-                        <div className="text-xs text-slate-500">予約日: {formatDate(room.booking?.scheduled_at)}</div>
-                        <div className="text-xs">サービス: {room.booking?.service_type === 'monthly' ? '1ヶ月コース' : '1回分'}</div>
-                        <div className="text-xs">最新メッセージ: {room.chat_messages?.length > 0 ? room.chat_messages[room.chat_messages.length-1].message : '（未送信）'}</div>
-                      </div>
-                      <div className="mt-2 md:mt-0 flex gap-2">
-                        <Button size="sm" onClick={() => window.location.href = `/chat/${room.booking?.id}`}>チャットルームへ</Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
-          )}
-          {activeTab === 'users' && (
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">ユーザー一覧</h2>
-              {userList.length === 0 ? (
-                <div className="text-slate-500 text-center py-8">担当したユーザーはいません。</div>
-              ) : (
-                <div className="space-y-2">
-                  {userList.map(user => (
-                    <div key={user.id} className="bg-slate-100 rounded px-4 py-2 flex justify-between items-center">
-                      <div>
-                        <div className="font-semibold">{user.name}</div>
-                        <div className="text-xs text-slate-500">{user.email}</div>
-                      </div>
-                      <div className="text-xs">予約回数: {user.count}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
-          )}
-          {activeTab === 'sales' && (
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">売上</h2>
-              <div className="mb-4">
-                <div className="text-lg font-bold">合計売上: {formatCurrency(sales.total)}</div>
-                <div className="text-sm text-slate-600">件数: {sales.count}</div>
               </div>
+            )}
+
+            {activeTab === 'schedule' && (
               <div>
-                <h3 className="font-semibold mb-2">月別売上</h3>
-                <div className="space-y-1">
-                  {Object.entries(sales.monthly).length === 0 ? (
-                    <div className="text-slate-400">データなし</div>
-                  ) : (
-                    Object.entries(sales.monthly).map(([month, amount]) => (
-                      <div key={month} className="flex justify-between">
-                        <span>{month}</span>
-                        <span>{formatCurrency(amount as number)}</span>
-                      </div>
-                    ))
-                  )}
+                <CalendarSchedule counselorId={counselorId} />
+              </div>
+            )}
+
+            {activeTab === 'bookings' && (
+              <div className="space-y-8">
+                <div className="text-center">
+                  <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                    予約管理
+                  </h2>
+                  <p className="text-gray-600 text-lg">予約の確認と管理を行います</p>
+                </div>
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-500 text-lg font-medium">予約データがありません</p>
+                  <p className="text-gray-400 text-sm mt-2">予約が入るとここに表示されます</p>
                 </div>
               </div>
-            </Card>
-          )}
-                  {activeTab === 'schedule' && (
-          <CalendarSchedule counselorId={counselorId} />
-        )}
-          {activeTab === 'memo' && (
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">メモ書き</h2>
-              <form onSubmit={handleMemoSave} className="space-y-4">
-                <Textarea label="メモ" value={memo} onChange={e => setMemo(e.target.value)} rows={8} />
-                <Button type="submit" loading={memoLoading}>保存</Button>
-                {memoMsg && <div className="text-sm mt-2">{memoMsg}</div>}
-              </form>
-            </Card>
-          )}
+            )}
+
+            {activeTab === 'reviews' && (
+              <div className="space-y-8">
+                <div className="text-center">
+                  <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+                    レビュー管理
+                  </h2>
+                  <p className="text-gray-600 text-lg">お客様からのレビューを確認します</p>
+                </div>
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-500 text-lg font-medium">レビューデータがありません</p>
+                  <p className="text-gray-400 text-sm mt-2">レビューが投稿されるとここに表示されます</p>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'profile' && (
+              <div className="space-y-8">
+                <div className="text-center">
+                  <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    プロフィール設定
+                  </h2>
+                  <p className="text-gray-600 text-lg">プロフィール情報を管理します</p>
+                </div>
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-500 text-lg font-medium">プロフィール設定機能</p>
+                  <p className="text-gray-400 text-sm mt-2">今後実装予定です</p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
