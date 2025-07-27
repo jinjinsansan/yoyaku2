@@ -50,12 +50,8 @@ export const useSchedules = (counselorId?: string, selectedDate?: Date) => {
       console.log('useSchedules: データ数:', data?.length || 0);
       
       const formattedSchedules: Schedule[] = data
-        .filter(schedule => {
-          console.log('useSchedules: フィルタリング - schedule.counselor:', schedule.counselor);
-          return schedule.counselor; // カウンセラーが存在するかチェック
-        })
+        .filter(schedule => schedule.counselor) // カウンセラーが存在するかチェック
         .map(schedule => {
-          console.log('useSchedules: マッピング - schedule:', schedule);
           return {
             id: schedule.id,
             counselorId: schedule.counselor_id,
