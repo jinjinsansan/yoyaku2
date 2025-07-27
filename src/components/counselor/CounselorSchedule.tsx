@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { supabase } from '../../lib/supabase';
 import { Calendar, Clock, Check, X } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { useSchedules } from '../../hooks/useSchedules';
 
 interface CounselorScheduleProps {
   counselorId: string;
@@ -28,71 +28,25 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
   schedules: externalSchedules,
 }) => {
   const { isAuthenticated } = useAuth();
-  const [schedules, setSchedules] = useState<TimeSlot[]>([]);
-  const [loading, setLoading] = useState(true);
   const [currentWeek, setCurrentWeek] = useState(new Date(2025, 6, 27)); // 2025年7月27日
-
-  const fetchSchedules = useCallback(async () => {
-    try {
-      setLoading(true);
-      console.log('スケジュール取得開始:', counselorId);
-      
-      // 2025年7月27日から30日のスケジュールを取得（テストデータに合わせる）
-      const startDate = '2025-07-27';
-      const endDate = '2025-07-30';
-      
-      console.log('CounselorSchedule: 日付範囲:', { startDate, endDate });
-      
-      const { data, error } = await supabase
-        .from('schedules')
-        .select('*')
-        .eq('counselor_id', counselorId)
-        .eq('is_available', true)
-        .gte('date', startDate)
-        .lte('date', endDate)
-        .order('date, start_time');
-
-      console.log('スケジュール取得レスポンス:', { data, error });
-
-      if (error) throw error;
-
-      const formattedSchedules: TimeSlot[] = data.map(schedule => ({
+  
+  // useSchedulesフックを使用
+  const { schedules: hookSchedules, loading } = useSchedules(counselorId);
+  
+  // 外部スケジュールまたはフックのスケジュールを使用
+  const schedules: TimeSlot[] = externalSchedules 
+    ? externalSchedules.map(schedule => ({
         date: schedule.date,
-        startTime: schedule.start_time,
-        endTime: schedule.end_time,
-        isAvailable: schedule.is_available,
-      }));
-
-      console.log('フォーマット後のスケジュール:', formattedSchedules);
-      setSchedules(formattedSchedules);
-    } catch (error: unknown) {
-      console.error('スケジュール取得エラー:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [counselorId]);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setLoading(false);
-      return;
-    }
-
-    if (externalSchedules) {
-      // 外部からスケジュールが渡された場合
-      const formattedSchedules: TimeSlot[] = externalSchedules.map(schedule => ({
+        startTime: schedule.startTime,
+        endTime: schedule.endTime,
+        isAvailable: schedule.isAvailable,
+      }))
+    : hookSchedules.map(schedule => ({
         date: schedule.date,
         startTime: schedule.startTime,
         endTime: schedule.endTime,
         isAvailable: schedule.isAvailable,
       }));
-      setSchedules(formattedSchedules);
-      setLoading(false);
-    } else {
-      // 内部でスケジュールを取得
-      fetchSchedules();
-    }
-  }, [counselorId, externalSchedules, fetchSchedules]);
 
   const getSchedulesForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
