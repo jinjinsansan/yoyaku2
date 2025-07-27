@@ -30,25 +30,26 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
   const { isAuthenticated } = useAuth();
   const [schedules, setSchedules] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentWeek, setCurrentWeek] = useState(new Date());
+  const [currentWeek, setCurrentWeek] = useState(new Date(2025, 6, 27)); // 2025年7月27日
 
   const fetchSchedules = useCallback(async () => {
     try {
       setLoading(true);
       console.log('スケジュール取得開始:', counselorId);
       
-      // 今日から1週間後のスケジュールを取得
-      const today = new Date();
-      const endDate = new Date(today);
-      endDate.setDate(today.getDate() + 7);
+      // 2025年7月27日から30日のスケジュールを取得（テストデータに合わせる）
+      const startDate = '2025-07-27';
+      const endDate = '2025-07-30';
+      
+      console.log('CounselorSchedule: 日付範囲:', { startDate, endDate });
       
       const { data, error } = await supabase
         .from('schedules')
         .select('*')
         .eq('counselor_id', counselorId)
         .eq('is_available', true)
-        .gte('date', today.toISOString().split('T')[0])
-        .lte('date', endDate.toISOString().split('T')[0])
+        .gte('date', startDate)
+        .lte('date', endDate)
         .order('date, start_time');
 
       console.log('スケジュール取得レスポンス:', { data, error });

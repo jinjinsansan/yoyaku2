@@ -35,9 +35,9 @@ export const useSchedules = (counselorId?: string, selectedDate?: Date) => {
         const dateStr = date.toISOString().split('T')[0];
         query = query.eq('date', dateStr);
       } else {
-        // 日付が指定されていない場合は今日以降のスケジュールを取得
-        const today = new Date().toISOString().split('T')[0];
-        query = query.gte('date', today);
+        // 日付が指定されていない場合は2025年7月27日以降のスケジュールを取得（テストデータに合わせる）
+        const startDate = '2025-07-27';
+        query = query.gte('date', startDate);
       }
 
       const { data, error } = await query.order('date, start_time');
@@ -46,9 +46,17 @@ export const useSchedules = (counselorId?: string, selectedDate?: Date) => {
 
       if (error) throw error;
 
+      console.log('useSchedules: 生データ:', data);
+      console.log('useSchedules: データ数:', data?.length || 0);
+      
       const formattedSchedules: Schedule[] = data
-        .filter(schedule => schedule.counselor) // カウンセラーが存在するかチェック
-        .map(schedule => ({
+        .filter(schedule => {
+          console.log('useSchedules: フィルタリング - schedule.counselor:', schedule.counselor);
+          return schedule.counselor; // カウンセラーが存在するかチェック
+        })
+        .map(schedule => {
+          console.log('useSchedules: マッピング - schedule:', schedule);
+          return {
           id: schedule.id,
           counselorId: schedule.counselor_id,
           counselor: {

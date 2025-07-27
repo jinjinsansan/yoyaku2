@@ -16,7 +16,7 @@ interface CalendarScheduleProps {
 }
 
 export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId }) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 0, 1)); // 2025年1月から開始
+  const [currentMonth, setCurrentMonth] = useState(new Date()); // 現在の日付から開始
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -62,6 +62,11 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
       const startDate = new Date(year, month, 1).toISOString().split('T')[0];
       const endDate = new Date(year, month + 1, 0).toISOString().split('T')[0];
 
+      console.log('CalendarSchedule: スケジュール取得開始');
+      console.log('counselorId:', counselorId);
+      console.log('startDate:', startDate);
+      console.log('endDate:', endDate);
+
       const { data, error } = await supabase
         .from('schedules')
         .select('*')
@@ -70,12 +75,15 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
         .lte('date', endDate)
         .order('date, start_time');
 
+      console.log('CalendarSchedule: スケジュール取得レスポンス:', { data, error });
+
       if (error) {
         console.error('スケジュール取得エラー:', error);
         return;
       }
 
       setSchedules(data || []);
+      console.log('CalendarSchedule: 設定されたスケジュール:', data || []);
     } catch (error) {
       console.error('スケジュール取得エラー:', error);
     } finally {
@@ -136,7 +144,16 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
 
   // スケジュールを保存
   const saveSchedules = async () => {
-    if (!selectedDate) return;
+    console.log('保存ボタンがクリックされました');
+    console.log('selectedDate:', selectedDate);
+    console.log('timeSlots:', timeSlots);
+    console.log('counselorId:', counselorId);
+    
+    if (!selectedDate) {
+      console.log('日付が選択されていません');
+      alert('日付を選択してください');
+      return;
+    }
 
     setIsLoading(true);
     try {
