@@ -169,6 +169,9 @@ export const CounselorDetailPage: React.FC = () => {
               />
             )}
 
+            {/* スケジュール */}
+            <CounselorSchedule counselorId={counselor.id} />
+
             {/* レビュー・評価 */}
             <Card>
               <div className="flex items-center space-x-2 mb-6">
