@@ -33,6 +33,9 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
   // useSchedulesフックを使用
   const { schedules: hookSchedules, loading } = useSchedules(counselorId);
   
+  console.log('CounselorSchedule: hookSchedules:', hookSchedules);
+  console.log('CounselorSchedule: externalSchedules:', externalSchedules);
+  
   // 外部スケジュールまたはフックのスケジュールを使用
   const schedules: TimeSlot[] = externalSchedules 
     ? externalSchedules.map(schedule => ({
@@ -47,10 +50,13 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
         endTime: schedule.endTime,
         isAvailable: schedule.isAvailable,
       }));
+  
+  console.log('CounselorSchedule: 最終的なschedules:', schedules);
 
   const getSchedulesForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
     const daySchedules = schedules.filter(schedule => schedule.date === dateStr);
+    console.log(`CounselorSchedule: ${dateStr}のスケジュール:`, daySchedules);
     return daySchedules;
   };
 
