@@ -57,38 +57,39 @@ export const useSchedules = (counselorId?: string, selectedDate?: Date) => {
         .map(schedule => {
           console.log('useSchedules: マッピング - schedule:', schedule);
           return {
-          id: schedule.id,
-          counselorId: schedule.counselor_id,
-          counselor: {
-            id: schedule.counselor?.id || '',
-            userId: schedule.counselor?.user_id || '',
-            user: schedule.counselor.user ? {
-              id: schedule.counselor.user.id || '',
-              email: schedule.counselor.user.email || '',
-              name: schedule.counselor.user.name || '',
-              phone: schedule.counselor.user.phone || '',
-              avatar: schedule.counselor.user.avatar || '',
-              createdAt: new Date(schedule.counselor.user.created_at || Date.now()),
-              updatedAt: new Date(schedule.counselor.user.updated_at || Date.now())
-            } : null,
-          profileImage: schedule.counselor.profile_image,
-          bio: schedule.counselor.bio,
-          specialties: Array.isArray(schedule.counselor.specialties) && schedule.counselor.specialties.length > 0 
-            ? schedule.counselor.specialties.filter(s => s && s.trim().length > 0)
-            : [],
-          profileUrl: schedule.counselor.profile_url,
-          hourlyRate: schedule.counselor.hourly_rate,
-          isActive: schedule.counselor.is_active,
-          rating: schedule.counselor.rating,
-          reviewCount: schedule.counselor.review_count,
-          createdAt: new Date(schedule.counselor.created_at),
-          updatedAt: new Date(schedule.counselor.updated_at)
-        },
-        date: schedule.date,
-        startTime: schedule.start_time,
-        endTime: schedule.end_time,
-        isAvailable: schedule.is_available
-      }));
+            id: schedule.id,
+            counselorId: schedule.counselor_id,
+            counselor: {
+              id: schedule.counselor?.id || '',
+              userId: schedule.counselor?.user_id || '',
+              user: schedule.counselor.user ? {
+                id: schedule.counselor.user.id || '',
+                email: schedule.counselor.user.email || '',
+                name: schedule.counselor.user.name || '',
+                phone: schedule.counselor.user.phone || '',
+                avatar: schedule.counselor.user.avatar || '',
+                createdAt: new Date(schedule.counselor.user.created_at || Date.now()),
+                updatedAt: new Date(schedule.counselor.user.updated_at || Date.now())
+              } : null,
+              profileImage: schedule.counselor.profile_image,
+              bio: schedule.counselor.bio,
+              specialties: Array.isArray(schedule.counselor.specialties) && schedule.counselor.specialties.length > 0 
+                ? schedule.counselor.specialties.filter(s => s && s.trim().length > 0)
+                : [],
+              profileUrl: schedule.counselor.profile_url,
+              hourlyRate: schedule.counselor.hourly_rate,
+              isActive: schedule.counselor.is_active,
+              rating: schedule.counselor.rating,
+              reviewCount: schedule.counselor.review_count,
+              createdAt: new Date(schedule.counselor.created_at),
+              updatedAt: new Date(schedule.counselor.updated_at)
+            },
+            date: schedule.date,
+            startTime: schedule.start_time,
+            endTime: schedule.end_time,
+            isAvailable: schedule.is_available
+          };
+        });
 
       console.log('useSchedules: フォーマット後のスケジュール:', formattedSchedules);
       setSchedules(formattedSchedules);
