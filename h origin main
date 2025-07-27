@@ -1,0 +1,5 @@
+[33m2dca29b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: add LINE contact link to navigation bar
+[33m0d057b7[m fix: set calendar initial month to 2025 to display existing schedules
+[33mb7369ec[m fix: restrict schedule display and booking to authenticated users only
+[33m1ab8224[m fix: resolve initialization order issues in usePayments and useCounselorChat hooks
+[33mf90a9f0[m fix: useBookings hook initialization order issue - resolve Cannot access fetchBookings before initialization error

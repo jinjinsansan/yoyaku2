@@ -91,7 +91,7 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
       // 内部でスケジュールを取得
       fetchSchedules();
     }
-  }, [counselorId, externalSchedules, fetchSchedules, isAuthenticated]);
+  }, [counselorId, externalSchedules, fetchSchedules]);
 
   const getSchedulesForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
