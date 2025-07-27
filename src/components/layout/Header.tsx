@@ -130,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
                 料金
               </button>
               <button 
-                onClick={() => {/* お問い合わせモーダル表示 */}}
+                onClick={() => window.open('https://c14fioph.autosns.app/line', '_blank')}
                 className="px-4 py-3 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105"
               >
                 お問い合わせ
@@ -265,7 +265,7 @@ export const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
                 料金
               </button>
               <button 
-                onClick={() => { /* お問い合わせモーダル表示 */ closeMobileMenu(); }}
+                onClick={() => { window.open('https://c14fioph.autosns.app/line', '_blank'); closeMobileMenu(); }}
                 className="w-full text-left px-4 py-3 text-gray-700 hover:text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300"
               >
                 お問い合わせ
