@@ -4,7 +4,7 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { supabase } from '../lib/supabase';
-import { Textarea } from '../components/ui/Textarea';
+
 
 const MENU = [
   { key: 'stats', label: '売上統計', disabled: true },
@@ -19,14 +19,29 @@ export const AdminPage: React.FC = () => {
   // デバッグログを削除
   const [activeTab, setActiveTab] = useState('counselors');
   // フォーム用state
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false); // フォーム用
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+
   // カウンセラー一覧
-  const [counselors, setCounselors] = useState<any[]>([]);
+  const [counselors, setCounselors] = useState<Array<{
+    id: string;
+    user_id: string;
+    bio: string;
+    specialties: string[];
+    profile_image: string | null;
+    profile_url: string | null;
+    hourly_rate: number;
+    is_active: boolean;
+    rating: number;
+    review_count: number;
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      avatar: string | null;
+      phone: string | null;
+    } | null;
+    created_at: string;
+    updated_at: string;
+  }>>([]);
   const [refresh, setRefresh] = useState(false);
 
   // カウンセラー一覧取得
@@ -43,12 +58,38 @@ export const AdminPage: React.FC = () => {
 
   // 編集用state
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editProfile, setEditProfile] = useState<any>({});
+  const [editProfile, setEditProfile] = useState<{
+    name: string;
+    email: string;
+    phone: string;
+    avatar: string;
+    profileImage: string;
+    bio: string;
+    specialties: string;
+    profileUrl: string;
+    hourlyRate: number;
+    isActive: boolean;
+    reviewCount: number;
+    rating: number;
+  }>({
+    name: '',
+    email: '',
+    phone: '',
+    avatar: '',
+    profileImage: '',
+    bio: '',
+    specialties: '',
+    profileUrl: '',
+    hourlyRate: 0,
+    isActive: true,
+    reviewCount: 0,
+    rating: 0,
+  });
   const [editLoading, setEditLoading] = useState(false);
   const [editMsg, setEditMsg] = useState('');
 
   // 編集開始
-  const handleEdit = (c: any) => {
+  const handleEdit = (c: typeof counselors[0]) => {
     setEditingId(c.id);
     setEditProfile({
       name: c.user?.name || '',
@@ -97,35 +138,15 @@ export const AdminPage: React.FC = () => {
       setEditMsg('保存しました');
       setEditingId(null);
       setRefresh(r => !r);
-    } catch (err: any) {
-      setEditMsg('エラー: ' + err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '保存に失敗しました';
+      setEditMsg('エラー: ' + errorMessage);
     } finally {
       setEditLoading(false);
     }
   };
 
-  // カウンセラー削除処理
-  const handleDelete = async (counselor: any) => {
-    if (!window.confirm('本当に削除しますか？')) return;
-    setLoading(true);
-    setError('');
-    setSuccess('');
-    try {
-      // 1. Authユーザー削除
-      if (!counselor.user?.id) {
-        throw new Error('カウンセラーのユーザーIDが見つかりません');
-      }
-      await supabase.auth.admin.deleteUser(counselor.user.id);
-      // 2. counselorsテーブルから削除
-      await supabase.from('counselors').delete().eq('id', counselor.id);
-      setSuccess('カウンセラーを削除しました');
-      setRefresh(r => !r);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   if (authLoading) {
     return (
@@ -146,7 +167,7 @@ export const AdminPage: React.FC = () => {
     );
   }
 
-  console.log('rendering AdminPage');
+
   return (
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -184,21 +205,21 @@ export const AdminPage: React.FC = () => {
                             )}
                           </div>
                           <div className="flex-1 grid grid-cols-1 gap-2">
-                            <Input label="名前" value={editProfile.name} onChange={e => setEditProfile((p: any) => ({ ...p, name: e.target.value }))} required />
-                            <Input label="メールアドレス" type="email" value={editProfile.email} onChange={e => setEditProfile((p: any) => ({ ...p, email: e.target.value }))} required />
-                            <Input label="電話番号" value={editProfile.phone || ''} onChange={e => setEditProfile((p: any) => ({ ...p, phone: e.target.value }))} />
-                            <Input label="アバターURL" value={editProfile.avatar || ''} onChange={e => setEditProfile((p: any) => ({ ...p, avatar: e.target.value }))} />
+                            <Input label="名前" value={editProfile.name} onChange={e => setEditProfile((p) => ({ ...p, name: e.target.value }))} required />
+                            <Input label="メールアドレス" type="email" value={editProfile.email} onChange={e => setEditProfile((p) => ({ ...p, email: e.target.value }))} required />
+                            <Input label="電話番号" value={editProfile.phone || ''} onChange={e => setEditProfile((p) => ({ ...p, phone: e.target.value }))} />
+                            <Input label="アバターURL" value={editProfile.avatar || ''} onChange={e => setEditProfile((p) => ({ ...p, avatar: e.target.value }))} />
                           </div>
                         </div>
-                        <Input label="プロフィール画像URL" value={editProfile.profileImage} onChange={e => setEditProfile((p: any) => ({ ...p, profileImage: e.target.value }))} />
-                        <Input label="自己紹介" value={editProfile.bio} onChange={e => setEditProfile((p: any) => ({ ...p, bio: e.target.value }))} />
-                        <Input label="専門分野（カンマ区切り）" value={editProfile.specialties} onChange={e => setEditProfile((p: any) => ({ ...p, specialties: e.target.value }))} />
-                        <Input label="プロフィールURL" value={editProfile.profileUrl} onChange={e => setEditProfile((p: any) => ({ ...p, profileUrl: e.target.value }))} />
-                        <Input label="時給" type="number" value={editProfile.hourlyRate} onChange={e => setEditProfile((p: any) => ({ ...p, hourlyRate: e.target.value }))} />
-                        <Input label="レビュー数" type="number" value={editProfile.reviewCount || 0} onChange={e => setEditProfile((p: any) => ({ ...p, reviewCount: e.target.value }))} />
-                        <Input label="評価" type="number" value={editProfile.rating || 0} onChange={e => setEditProfile((p: any) => ({ ...p, rating: e.target.value }))} />
-                        <label className="flex items-center gap-2">
-                          <input type="checkbox" checked={editProfile.isActive} onChange={e => setEditProfile((p: any) => ({ ...p, isActive: e.target.checked }))} />
+                        <Input label="プロフィール画像URL" value={editProfile.profileImage} onChange={e => setEditProfile((p) => ({ ...p, profileImage: e.target.value }))} />
+                        <Input label="自己紹介" value={editProfile.bio} onChange={e => setEditProfile((p) => ({ ...p, bio: e.target.value }))} />
+                        <Input label="専門分野（カンマ区切り）" value={editProfile.specialties} onChange={e => setEditProfile((p) => ({ ...p, specialties: e.target.value }))} />
+                        <Input label="プロフィールURL" value={editProfile.profileUrl} onChange={e => setEditProfile((p) => ({ ...p, profileUrl: e.target.value }))} />
+                        <Input label="時給" type="number" value={editProfile.hourlyRate} onChange={e => setEditProfile((p) => ({ ...p, hourlyRate: Number(e.target.value) }))} />
+                        <Input label="レビュー数" type="number" value={editProfile.reviewCount || 0} onChange={e => setEditProfile((p) => ({ ...p, reviewCount: Number(e.target.value) }))} />
+                        <Input label="評価" type="number" value={editProfile.rating || 0} onChange={e => setEditProfile((p) => ({ ...p, rating: Number(e.target.value) }))} />
+                                                  <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={editProfile.isActive} onChange={e => setEditProfile((p) => ({ ...p, isActive: e.target.checked }))} />
                           有効
                         </label>
                         <div className="flex gap-2 mt-2">

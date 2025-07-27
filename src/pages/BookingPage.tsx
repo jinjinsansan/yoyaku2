@@ -68,7 +68,7 @@ export const BookingPage: React.FC = () => {
         const result = await response.json();
         
         if (result.success) {
-          console.log('予約確認メールを送信しました');
+          // メール送信成功
         } else {
           console.error('メール送信に失敗しました:', result.error);
         }
@@ -84,8 +84,9 @@ export const BookingPage: React.FC = () => {
         // その他の予約は決済ページに遷移
         navigate(`/payment/${booking.id}`);
       }
-    } catch (err: any) {
-      setError(err.message || '予約の作成に失敗しました');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '予約の作成に失敗しました';
+      setError(errorMessage);
     } finally {
       setBookingLoading(false);
     }

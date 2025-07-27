@@ -80,8 +80,9 @@ export const useReviews = (counselorId?: string) => {
       }));
 
       setReviews(formattedReviews);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'レビュー一覧の取得に失敗しました';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -114,8 +115,9 @@ export const useReviews = (counselorId?: string) => {
         await fetchReviews(counselorId);
       }
       return data;
-    } catch (err: any) {
-      throw new Error(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'レビューの作成に失敗しました';
+      throw new Error(errorMessage);
     }
   };
 

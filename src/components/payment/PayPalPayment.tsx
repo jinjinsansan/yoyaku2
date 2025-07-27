@@ -58,12 +58,11 @@ export const PayPalPayment: React.FC<PayPalPaymentProps> = ({
                 const details = await actions.order!.capture();
                 const transactionId = details.id;
                 onSuccess(transactionId);
-              } catch (error) {
+              } catch {
                 onError('決済の処理中にエラーが発生しました');
               }
             }}
-            onError={(err) => {
-              console.error('PayPal Error:', err);
+            onError={() => {
               onError('PayPal決済でエラーが発生しました');
             }}
             onCancel={() => {

@@ -6,7 +6,7 @@
       - `id` (uuid, primary key)
       - `user_id` (uuid, foreign key) - 予約者
       - `counselor_id` (uuid, foreign key) - カウンセラー
-      - `service_type` (text) - サービス種別（monthly/single）
+      - `service_type` (text) - サービス種別（monthly/single/chat）
       - `scheduled_at` (timestamp) - 予約日時
       - `status` (text) - 予約状態（pending/confirmed/completed/cancelled）
       - `amount` (integer) - 料金（円）
@@ -20,7 +20,7 @@
 */
 
 CREATE TYPE booking_status AS ENUM ('pending', 'confirmed', 'completed', 'cancelled');
-CREATE TYPE service_type AS ENUM ('monthly', 'single');
+CREATE TYPE service_type AS ENUM ('monthly', 'single', 'chat');
 
 CREATE TABLE IF NOT EXISTS bookings (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

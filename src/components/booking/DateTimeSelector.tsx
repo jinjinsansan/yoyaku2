@@ -1,7 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { Calendar, Clock } from 'lucide-react';
+import React from 'react';
+import { Calendar } from 'lucide-react';
 import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
 import { CounselorSchedule } from '../counselor/CounselorSchedule';
 import { Schedule } from '../../types';
 
@@ -13,12 +12,11 @@ interface DateTimeSelectorProps {
 }
 
 export const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
-  schedules,
   selectedDateTime,
   onDateTimeSelect,
   counselorId
 }) => {
-  const handleTimeSlotSelect = (date: string, startTime: string, endTime: string) => {
+  const handleTimeSlotSelect = (date: string, startTime: string) => {
     // 日付文字列からDateオブジェクトを作成
     const targetDate = new Date(date);
     

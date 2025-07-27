@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { useBookings } from '../hooks/useBookings';
+
+import { useCounselorChat } from '../hooks/useCounselorChat';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Textarea } from '../components/ui/Textarea';
 import { supabase } from '../lib/supabase';
-import { formatCurrency, formatDate } from '../lib/utils';
+
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { CalendarSchedule } from '../components/counselor/CalendarSchedule';
 
@@ -98,22 +99,10 @@ export const CounselorDashboardPage: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string>('');
   const [imageUploading, setImageUploading] = useState(false);
 
-  // 予約管理用
-  const [counselorBookings, setCounselorBookings] = useState<any[]>([]);
-
   // チャット管理用
-  const [chatRooms, setChatRooms] = useState<any[]>([]);
+  const { chatRooms, loading: chatLoading, error: chatError, refetch: refetchChat } = useCounselorChat();
 
-  // ユーザー一覧用
-  const [userList, setUserList] = useState<any[]>([]);
 
-  // 売上用
-  const [sales, setSales] = useState({ total: 0, count: 0, monthly: {} });
-
-  // メモ書き用
-  const [memo, setMemo] = useState('');
-  const [memoLoading, setMemoLoading] = useState(false);
-  const [memoMsg, setMemoMsg] = useState('');
 
   // カウンセラー判定: counselorsテーブルに自分のuser_idが存在するか
   useEffect(() => {
@@ -135,101 +124,12 @@ export const CounselorDashboardPage: React.FC = () => {
     }
   }, [user]);
 
-  // 予約管理用useEffect
-  useEffect(() => {
-    if (activeTab === 'bookings' && user && isCounselor === true) {
-      (async () => {
-        const { data, error } = await supabase
-          .from('bookings')
-          .select('*, user:users(*), counselor:counselors(*)')
-          .eq('counselor_id', user.id)
-          .order('scheduled_at', { ascending: false });
-        if (!error) setCounselorBookings(data || []);
-      })();
-    }
-  }, [activeTab, user, isCounselor]);
-
-  // チャット管理用useEffect
-  useEffect(() => {
-    if (activeTab === 'chat' && user && isCounselor === true) {
-      (async () => {
-        const { data, error } = await supabase
-          .from('chat_rooms')
-          .select('id, booking:bookings(*, user:users(*)), chat_messages(message, created_at)')
-          .order('created_at', { ascending: false });
-        if (!error && data) {
-          // カウンセラー自身の予約のみ抽出
-          const filtered = data.filter((room: any) => room.booking?.counselor_id === user.id);
-          setChatRooms(filtered);
-        }
-      })();
-    }
-  }, [activeTab, user, isCounselor]);
-
-  // ユーザー一覧用useEffect
-  useEffect(() => {
-    if (activeTab === 'users' && user && isCounselor === true) {
-      (async () => {
-        const { data, error } = await supabase
-          .from('bookings')
-          .select('user:users(id, name, email)')
-          .eq('counselor_id', user.id);
-        if (!error && data) {
-          // ユーザーごとに予約回数を集計
-          const userMap: Record<string, { id: string, name: string, email: string, count: number }> = {};
-          data.forEach((b: any) => {
-            if (b.user && b.user.id) {
-              if (!userMap[b.user.id]) {
-                userMap[b.user.id] = { ...b.user, count: 1 };
-              } else {
-                userMap[b.user.id].count++;
-              }
-            }
-          });
-          setUserList(Object.values(userMap));
-        }
-      })();
-    }
-  }, [activeTab, user, isCounselor]);
-
-  // 売上用useEffect
-  useEffect(() => {
-    if (activeTab === 'sales' && user && isCounselor === true) {
-      (async () => {
-        const { data, error } = await supabase
-          .from('payments')
-          .select('amount, status, created_at, booking:bookings(counselor_id)')
-          .eq('status', 'completed');
-        if (!error && data) {
-          // カウンセラー自身の売上のみ集計
-          const filtered = data.filter((p: any) => p.booking?.counselor_id === user.id);
-          const total = filtered.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
-          const count = filtered.length;
-          // 月別集計
-          const monthly: Record<string, number> = {};
-          filtered.forEach((p: any) => {
-            const month = p.created_at?.slice(0, 7) || '不明';
-            monthly[month] = (monthly[month] || 0) + (p.amount || 0);
-          });
-          setSales({ total, count, monthly });
-        }
-      })();
-    }
-  }, [activeTab, user, isCounselor]);
-
-  // メモ書き用useEffect
-  useEffect(() => {
-    if (activeTab === 'memo' && user && isCounselor === true) {
-      (async () => {
-        const { data, error } = await supabase.from('counselors').select('bio').eq('user_id', user.id).limit(1).maybeSingle();
-        if (!error && data) setMemo(data.bio || '');
-        if (error) {
-          setMemo('');
-          console.error('メモ取得APIエラー', error);
-        }
-      })();
-    }
-  }, [activeTab, user, isCounselor]);
+  // チャット管理用useEffect（新しいフックで管理されるため削除）
+  // useEffect(() => {
+  //   if (activeTab === 'chat' && user && isCounselor === true) {
+  //     // useCounselorChatフックで管理されるため、ここでは何もしない
+  //   }
+  // }, [activeTab, user, isCounselor]);
 
   // 初期値取得
   useEffect(() => {
@@ -237,7 +137,6 @@ export const CounselorDashboardPage: React.FC = () => {
       (async () => {
         const { data, error } = await supabase.from('counselors').select('profile_image, bio, specialties').eq('user_id', user.id).limit(1).maybeSingle();
         if (data) {
-          console.log('初期値取得 data.specialties:', data.specialties);
           setProfile(p => ({
             ...p,
             name: user.user_metadata?.name || '',
@@ -278,21 +177,7 @@ export const CounselorDashboardPage: React.FC = () => {
     );
   }
 
-  // メモ保存
-  const handleMemoSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMemoLoading(true);
-    setMemoMsg('');
-    try {
-      if (!user) throw new Error('ユーザー情報が取得できません');
-      await supabase.from('counselors').update({ bio: memo }).eq('user_id', user.id);
-      setMemoMsg('保存しました');
-    } catch (err: any) {
-      setMemoMsg('エラー: ' + err.message);
-    } finally {
-      setMemoLoading(false);
-    }
-  };
+
 
   // プロフィール保存
   const handleProfileSave = async (e: React.FormEvent) => {
@@ -312,7 +197,6 @@ export const CounselorDashboardPage: React.FC = () => {
         await supabase.auth.updateUser({ password: profile.password });
       }
       // counselorsテーブル更新
-      console.log('保存前 profile.specialties:', profile.specialties);
       const { error: updateError } = await supabase.from('counselors').update({
         profile_image: profile.profileImage,
         bio: profile.bio,
@@ -327,8 +211,9 @@ export const CounselorDashboardPage: React.FC = () => {
       
       setProfileMsg('プロフィールを更新しました');
       setProfile(p => ({ ...p, password: '' }));
-    } catch (err: any) {
-      setProfileMsg('エラー: ' + err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'プロフィールの更新に失敗しました';
+      setProfileMsg('エラー: ' + errorMessage);
     } finally {
       setProfileLoading(false);
     }
@@ -381,14 +266,15 @@ export const CounselorDashboardPage: React.FC = () => {
       setImagePreview(publicUrl);
       setProfileMsg('画像をアップロードしました');
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('画像アップロードエラー:', error);
       
       // バケットが存在しない場合のエラーハンドリング
-      if (error.message?.includes('bucket') || error.message?.includes('not found')) {
+      const errorMessage = error instanceof Error ? error.message : '不明なエラー';
+      if (errorMessage.includes('bucket') || errorMessage.includes('not found')) {
         setProfileMsg('画像アップロード機能の設定が完了していません。管理者にお問い合わせください。');
       } else {
-        setProfileMsg('画像のアップロードに失敗しました: ' + error.message);
+        setProfileMsg('画像のアップロードに失敗しました: ' + errorMessage);
       }
     } finally {
       setImageUploading(false);
@@ -427,6 +313,8 @@ export const CounselorDashboardPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+      {/* ヘッダーの高さ分のスペーサー */}
+      <div className="h-20"></div>
       <div className="container mx-auto px-4 py-8">
         {/* 美しいヘッダー */}
         <div className="mb-8">
@@ -581,17 +469,158 @@ export const CounselorDashboardPage: React.FC = () => {
                   <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                     チャット管理
                   </h2>
-                  <p className="text-gray-600 text-lg">カウンセラーとお客様のチャットを管理します</p>
+                  <p className="text-gray-600 text-lg">お客様とのチャットを管理します</p>
                 </div>
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
+                
+                {/* デバッグ情報 */}
+                <div className="bg-gray-100 rounded-lg p-4 mb-6">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">デバッグ情報</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p><strong>ユーザーID:</strong> {user?.id || '未取得'}</p>
+                      <p><strong>カウンセラーID:</strong> {counselorId || '未取得'}</p>
+                      <p><strong>認証状態:</strong> {isAuthenticated ? '認証済み' : '未認証'}</p>
+                      <p><strong>カウンセラー判定:</strong> {isCounselor === true ? 'カウンセラー' : isCounselor === false ? '一般ユーザー' : '判定中'}</p>
+                    </div>
+                    <div>
+                      <p><strong>チャットルーム数:</strong> {chatRooms.length}件</p>
+                      <p><strong>ローディング状態:</strong> {chatLoading ? '読み込み中' : '完了'}</p>
+                      <p><strong>エラー状態:</strong> {chatError ? 'エラーあり' : '正常'}</p>
+                      <p><strong>アクティブタブ:</strong> {activeTab}</p>
+                    </div>
                   </div>
-                  <p className="text-gray-500 text-lg font-medium">チャットデータがありません</p>
-                  <p className="text-gray-400 text-sm mt-2">チャットが開始されるとここに表示されます</p>
+                  {chatError && (
+                    <div className="mt-3 p-3 bg-red-100 border border-red-300 rounded">
+                      <p className="text-red-700 font-semibold">エラー詳細:</p>
+                      <p className="text-red-600 text-sm">{chatError}</p>
+                    </div>
+                  )}
                 </div>
+                
+                {chatLoading ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                      <svg className="w-8 h-8 text-blue-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-500 text-lg font-medium">チャットルームを読み込み中...</p>
+                  </div>
+                ) : chatError ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-red-100 to-pink-100 rounded-full flex items-center justify-center">
+                      <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <p className="text-red-500 text-lg font-medium">エラーが発生しました</p>
+                    <p className="text-red-400 text-sm mt-2">{chatError}</p>
+                    <Button onClick={refetchChat} className="mt-4">
+                      再試行
+                    </Button>
+                  </div>
+                ) : chatRooms.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-500 text-lg font-medium">チャットデータがありません</p>
+                    <p className="text-gray-400 text-sm mt-2">予約が確定するとチャットルームが自動的に作成されます</p>
+                    <div className="mt-4 space-y-2">
+                      <Button
+                        onClick={() => window.location.href = '/counselors'}
+                        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        カウンセラー一覧を見る
+                      </Button>
+                      <div className="text-xs text-gray-400">
+                        デバッグ情報: チャットルーム数 {chatRooms.length}件
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid gap-6">
+                    {chatRooms.map((room) => (
+                      <div key={room.id} className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                        <div className="text-xs text-gray-400 mb-2">
+                          デバッグ: ルームID: {room.id} | 予約ID: {room.booking?.id}
+                          {room.id.startsWith('demo-') && (
+                            <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">
+                              デモデータ
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-gray-800">
+                                {room.booking?.user?.name || '不明なユーザー'}さんとのチャット
+                              </h3>
+                              <p className="text-sm text-gray-500">
+                                予約日: {room.booking?.scheduled_at ? new Date(room.booking.scheduled_at).toLocaleDateString('ja-JP') : '未設定'}
+                              </p>
+                              <p className="text-xs text-gray-400">
+                                サービス: {room.booking?.service_type === 'monthly' ? '月額コース' : 
+                                           room.booking?.service_type === 'single' ? '単発セッション' : 
+                                           room.booking?.service_type === 'chat' ? 'チャットサービス' : 'その他'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              room.booking?.status === 'confirmed' 
+                                ? 'bg-green-100 text-green-800' 
+                                : room.booking?.status === 'completed'
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {room.booking?.status === 'confirmed' ? '確定済み' : 
+                               room.booking?.status === 'completed' ? '完了' : '予約中'}
+                            </span>
+                            <Button
+                              onClick={() => {
+                                if (room.id.startsWith('demo-')) {
+                                  alert('これはデモデータです。実際のチャット機能をテストするには、予約データを作成してください。');
+                                } else {
+                                  window.open(`/chat/${room.booking?.id}`, '_blank');
+                                }
+                              }}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                              チャットを開く
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        {room.chat_messages && room.chat_messages.length > 0 ? (
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <p className="text-sm text-gray-600 mb-2">最新メッセージ:</p>
+                            <p className="text-gray-800">
+                              {room.chat_messages[room.chat_messages.length - 1]?.message || 'メッセージなし'}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-2">
+                              {new Date(room.chat_messages[room.chat_messages.length - 1]?.created_at).toLocaleString('ja-JP')}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              メッセージ数: {room.chat_messages.length}件
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <p className="text-sm text-gray-500">まだメッセージがありません</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

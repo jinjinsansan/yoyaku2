@@ -84,8 +84,9 @@ export const useBooking = (bookingId: string) => {
       };
 
       setBooking(formattedBooking);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '予約の取得に失敗しました';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

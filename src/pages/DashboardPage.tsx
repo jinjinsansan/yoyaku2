@@ -6,12 +6,9 @@ import {
   CreditCard, 
   User, 
   Clock,
-  CheckCircle,
-  XCircle,
   AlertCircle,
   Star,
-  Loader2,
-  Edit
+  Loader2
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useBookings } from '../hooks/useBookings';
@@ -32,7 +29,10 @@ export const DashboardPage: React.FC = () => {
   const { createReview } = useReviews();
   const [activeTab, setActiveTab] = useState<'bookings' | 'payments' | 'profile'>('bookings');
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [selectedBooking, setSelectedBooking] = useState<{
+    id: string;
+    counselor: { id: string };
+  } | null>(null);
   const [reviewLoading, setReviewLoading] = useState(false);
 
   // 認証チェック
@@ -102,8 +102,9 @@ export const DashboardPage: React.FC = () => {
       setSelectedBooking(null);
       // 予約一覧を再取得（レビュー済みフラグの更新のため）
       // 実際の実装では、bookingsにreview情報を含めるか、別途管理する必要があります
-    } catch (err: any) {
-      throw new Error(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'レビューの投稿に失敗しました';
+      throw new Error(errorMessage);
     } finally {
       setReviewLoading(false);
     }

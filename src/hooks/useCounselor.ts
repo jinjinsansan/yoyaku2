@@ -16,6 +16,8 @@ export const useCounselor = (id: string) => {
   const fetchCounselor = async (counselorId: string) => {
     try {
       setLoading(true);
+      console.log('カウンセラー詳細取得開始:', counselorId);
+      
       const { data, error } = await supabase
         .from('counselors')
         .select(`
@@ -24,26 +26,30 @@ export const useCounselor = (id: string) => {
           schedules(*)
         `)
         .eq('id', counselorId)
-        .eq('is_active', true)
         .single();
+
+      console.log('カウンセラー詳細レスポンス:', { data, error });
 
       if (error) throw error;
       
-      if (!data.user) {
-        throw new Error('カウンセラーのユーザー情報が見つかりません');
+      if (!data) {
+        throw new Error('カウンセラーが見つかりません');
       }
 
+      // userデータが不完全でもカウンセラーを表示
+      const userData = data.user || {};
+      
       const formattedCounselor: Counselor = {
         id: data.id,
         userId: data.user_id,
         user: {
-          id: data.user?.id || '',
-          email: data.user?.email || '',
-          name: data.user?.name || '',
-          phone: data.user?.phone || '',
-          avatar: data.user?.avatar || '',
-          createdAt: new Date(data.user?.created_at || Date.now()),
-          updatedAt: new Date(data.user?.updated_at || Date.now())
+          id: userData.id || data.user_id || '',
+          email: userData.email || 'unknown@example.com',
+          name: userData.name || 'カウンセラー',
+          phone: userData.phone || '',
+          avatar: userData.avatar || '',
+          createdAt: new Date(userData.created_at || data.created_at || Date.now()),
+          updatedAt: new Date(userData.updated_at || data.updated_at || Date.now())
         },
         profileImage: data.profile_image,
         bio: data.bio,
@@ -59,9 +65,12 @@ export const useCounselor = (id: string) => {
         updatedAt: new Date(data.updated_at)
       };
 
+      console.log('フォーマット後のカウンセラー:', formattedCounselor);
       setCounselor(formattedCounselor);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'カウンセラー情報の取得に失敗しました';
+      console.error('カウンセラー詳細取得エラー:', err);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Button } from '../ui/Button';
-import { Card } from '../ui/Card';
+
 import { Input } from '../ui/Input';
-import { Badge } from '../ui/Badge';
 
 interface Schedule {
   id: string;
@@ -58,7 +56,7 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
   };
 
   // スケジュールを取得
-  const fetchSchedules = async (year: number, month: number) => {
+  const fetchSchedules = useCallback(async (year: number, month: number) => {
     setIsLoading(true);
     try {
       const startDate = new Date(year, month, 1).toISOString().split('T')[0];
@@ -83,7 +81,7 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [counselorId]);
 
   // 指定日のスケジュールを取得
   const getSchedulesForDate = (date: Date) => {
@@ -94,7 +92,7 @@ export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId 
   // 月が変更された時の処理
   useEffect(() => {
     fetchSchedules(currentMonth.getFullYear(), currentMonth.getMonth());
-  }, [currentMonth, counselorId]);
+  }, [currentMonth, fetchSchedules]);
 
   // 前月に移動
   const goToPreviousMonth = () => {

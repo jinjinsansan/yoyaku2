@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useAuth } from '../../hooks/useAuth';
 import { Mail, Lock, User, Phone } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -20,6 +22,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     phone: ''
   });
   const [error, setError] = useState('');
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const { signIn, signUp } = useAuth();
 
@@ -37,9 +40,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           phone: formData.phone || undefined
         });
       }
-      onClose();
-    } catch (err: any) {
-      setError(err.message || 'エラーが発生しました');
+      setShowSuccessDialog(true);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'エラーが発生しました';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -118,6 +122,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           </button>
         </div>
       </form>
+
+      {/* ログイン成功ダイアログ */}
+      <ConfirmDialog
+        isOpen={showSuccessDialog}
+        onClose={() => {
+          setShowSuccessDialog(false);
+          onSuccess?.();
+          onClose();
+        }}
+        onConfirm={() => {
+          setShowSuccessDialog(false);
+          onSuccess?.();
+          onClose();
+        }}
+        title="ログイン完了"
+        message={isLogin ? "ログインしました！" : "新規登録が完了しました！"}
+        confirmText="OK"
+        type="success"
+      />
     </Modal>
   );
 };

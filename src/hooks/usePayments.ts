@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { Payment, PaymentMethod, PaymentStatus } from '../types';
 import { useAuth } from './useAuth';
@@ -13,9 +13,9 @@ export const usePayments = () => {
     if (user) {
       fetchPayments();
     }
-  }, [user]);
+  }, [user, fetchPayments]);
 
-  const fetchPayments = async () => {
+  const fetchPayments = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -98,12 +98,13 @@ export const usePayments = () => {
       }));
 
       setPayments(formattedPayments);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '決済一覧の取得に失敗しました';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   const createPayment = async (paymentData: {
     bookingId: string;
@@ -128,14 +129,15 @@ export const usePayments = () => {
 
       await fetchPayments();
       return data;
-    } catch (err: any) {
-      throw new Error(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '決済の作成に失敗しました';
+      throw new Error(errorMessage);
     }
   };
 
   const updatePaymentStatus = async (paymentId: string, status: PaymentStatus, transactionId?: string) => {
     try {
-      const updateData: any = { status };
+      const updateData: { status: PaymentStatus; transaction_id?: string } = { status };
       if (transactionId) {
         updateData.transaction_id = transactionId;
       }
@@ -148,8 +150,9 @@ export const usePayments = () => {
       if (error) throw error;
 
       await fetchPayments();
-    } catch (err: any) {
-      throw new Error(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '決済ステータスの更新に失敗しました';
+      throw new Error(errorMessage);
     }
   };
 

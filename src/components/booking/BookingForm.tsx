@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageSquare, Calendar, CreditCard } from 'lucide-react';
+import { MessageSquare, CreditCard } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Textarea } from '../ui/Textarea';

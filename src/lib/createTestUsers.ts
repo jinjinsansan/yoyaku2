@@ -1,5 +1,8 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
+
+// 環境変数を読み込み
+config();
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '';
@@ -63,13 +66,13 @@ async function createTestData() {
         scheduled_at: new Date(Date.now() + (i + 1) * 24 * 60 * 60 * 1000).toISOString(), // 1日後から順次
         status: 'confirmed',
         amount: 11000,
-        notes: `テスト予約 ${i + 1}: ${user.name} と ${(counselor.user as any)?.name} のセッション`
+        notes: `テスト予約 ${i + 1}: ${user.name} と ${(counselor.user as { name?: string })?.name} のセッション`
       }).select().single();
 
       if (error) {
         console.error(`予約作成失敗: ${user.email}`, error.message);
       } else {
-        console.log(`予約作成成功: ${user.email} と ${(counselor.user as any)?.email}`);
+        console.log(`予約作成成功: ${user.email} と ${(counselor.user as { email?: string })?.email}`);
         testBookings.push(booking);
       }
     }
@@ -103,7 +106,7 @@ async function createTestData() {
         await supabase.from('chat_messages').insert({
           room_id: chatRoom.id,
           sender_id: user.id,
-          message: `こんにちは、${(counselor.user as any)?.name}先生。今日はよろしくお願いします。`,
+          message: `こんにちは、${(counselor.user as { name?: string })?.name}先生。今日はよろしくお願いします。`,
           created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString() // 30分前
         });
 
@@ -142,7 +145,7 @@ async function createTestData() {
   
   console.log('\n既存カウンセラー:');
   existingCounselors.forEach((counselor, i) => {
-    console.log(`${i + 1}. ${(counselor.user as any)?.email} (${(counselor.user as any)?.name})`);
+    console.log(`${i + 1}. ${(counselor.user as { email?: string; name?: string })?.email} (${(counselor.user as { email?: string; name?: string })?.name})`);
   });
 }
 

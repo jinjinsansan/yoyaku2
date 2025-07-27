@@ -15,11 +15,11 @@ import { formatCurrency, formatDate } from '../lib/utils';
 export const PaymentPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { booking, loading: bookingLoading, error: bookingError } = useBooking(id!);
   const { createPayment, updatePaymentStatus } = usePayments();
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
-  const [paymentLoading, setPaymentLoading] = useState(false);
+
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,8 +37,9 @@ export const PaymentPage: React.FC = () => {
 
       await updatePaymentStatus(payment.id, 'completed', transactionId);
       setPaymentCompleted(true);
-    } catch (err: any) {
-      setError(err.message || '決済の処理中にエラーが発生しました');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '決済の処理中にエラーが発生しました';
+      setError(errorMessage);
     } finally {
       setPaymentLoading(false);
     }
@@ -59,8 +60,9 @@ export const PaymentPage: React.FC = () => {
         method: 'bank_transfer'
       });
       setPaymentCompleted(true);
-    } catch (err: any) {
-      setError(err.message || '振込予約の処理中にエラーが発生しました');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '振込予約の処理中にエラーが発生しました';
+      setError(errorMessage);
     } finally {
       setPaymentLoading(false);
     }

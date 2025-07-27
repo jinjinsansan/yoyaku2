@@ -43,54 +43,59 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 ALTER TABLE chat_rooms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 
--- チャットルーム: 予約の当事者のみアクセス可能
+-- チャットルーム: 予約の当事者のみアクセス可能（超簡素化版）
 CREATE POLICY "Booking participants can access chat rooms"
   ON chat_rooms
   FOR ALL
   TO authenticated
   USING (
-    auth.uid() IN (
-      SELECT b.user_id FROM bookings b WHERE b.id = chat_rooms.booking_id
-      UNION
-      SELECT c.user_id FROM bookings b 
-      JOIN counselors c ON b.counselor_id = c.id 
-      WHERE b.id = chat_rooms.booking_id
+    EXISTS (
+      SELECT 1 FROM bookings b 
+      WHERE b.id = chat_rooms.booking_id 
+      AND (
+        b.user_id = auth.uid() OR
+        b.counselor_id IN (
+          SELECT id FROM counselors WHERE user_id = auth.uid()
+        )
+      )
     )
   );
 
--- チャットメッセージ: ルーム参加者のみアクセス可能
+-- チャットメッセージ: ルーム参加者のみアクセス可能（超簡素化版）
 CREATE POLICY "Room participants can access messages"
   ON chat_messages
   FOR SELECT
   TO authenticated
   USING (
-    auth.uid() IN (
-      SELECT b.user_id FROM chat_rooms cr
+    EXISTS (
+      SELECT 1 FROM chat_rooms cr
       JOIN bookings b ON cr.booking_id = b.id
       WHERE cr.id = chat_messages.room_id
-      UNION
-      SELECT c.user_id FROM chat_rooms cr
-      JOIN bookings b ON cr.booking_id = b.id
-      JOIN counselors c ON b.counselor_id = c.id
-      WHERE cr.id = chat_messages.room_id
+      AND (
+        b.user_id = auth.uid() OR
+        b.counselor_id IN (
+          SELECT id FROM counselors WHERE user_id = auth.uid()
+        )
+      )
     )
   );
 
--- メッセージ送信: ルーム参加者のみ可能
+-- メッセージ送信: ルーム参加者のみ可能（超簡素化版）
 CREATE POLICY "Room participants can send messages"
   ON chat_messages
   FOR INSERT
   TO authenticated
   WITH CHECK (
-    auth.uid() IN (
-      SELECT b.user_id FROM chat_rooms cr
+    EXISTS (
+      SELECT 1 FROM chat_rooms cr
       JOIN bookings b ON cr.booking_id = b.id
       WHERE cr.id = chat_messages.room_id
-      UNION
-      SELECT c.user_id FROM chat_rooms cr
-      JOIN bookings b ON cr.booking_id = b.id
-      JOIN counselors c ON b.counselor_id = c.id
-      WHERE cr.id = chat_messages.room_id
+      AND (
+        b.user_id = auth.uid() OR
+        b.counselor_id IN (
+          SELECT id FROM counselors WHERE user_id = auth.uid()
+        )
+      )
     )
   );
 

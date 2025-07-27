@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { Booking, BookingStatus, ServiceType } from '../types';
 import { useAuth } from './useAuth';
@@ -9,13 +9,7 @@ export const useBookings = () => {
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      fetchBookings();
-    }
-  }, [user]);
-
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -85,12 +79,19 @@ export const useBookings = () => {
       }));
 
       setBookings(formattedBookings);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '予約一覧の取得に失敗しました';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchBookings();
+    }
+  }, [user]);
 
   const createBooking = async (bookingData: {
     counselorId: string;
@@ -118,10 +119,25 @@ export const useBookings = () => {
 
       if (error) throw error;
 
+      // チャットルームを自動作成
+      try {
+        await supabase
+          .from('chat_rooms')
+          .insert({
+            booking_id: data.id,
+            is_active: true
+          });
+
+      } catch (chatError) {
+        console.error('チャットルーム作成エラー:', chatError);
+        // チャットルーム作成に失敗しても予約は成功とする
+      }
+
       await fetchBookings(); // 一覧を再取得
       return data;
-    } catch (err: any) {
-      throw new Error(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '予約の作成に失敗しました';
+      throw new Error(errorMessage);
     }
   };
 
@@ -135,8 +151,9 @@ export const useBookings = () => {
       if (error) throw error;
 
       await fetchBookings(); // 一覧を再取得
-    } catch (err: any) {
-      throw new Error(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : '予約ステータスの更新に失敗しました';
+      throw new Error(errorMessage);
     }
   };
 

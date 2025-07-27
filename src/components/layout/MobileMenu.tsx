@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, Heart, CreditCard, HelpCircle, LayoutDashboard } from 'lucide-react';
+import { X, User, Heart, CreditCard, HelpCircle, LayoutDashboard, MessageCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';

@@ -5,7 +5,7 @@
     - `schedules`
       - `id` (uuid, primary key)
       - `counselor_id` (uuid, foreign key) - カウンセラー
-      - `day_of_week` (integer) - 曜日（0=日曜日, 1=月曜日, ..., 6=土曜日）
+      - `date` (date) - 日付
       - `start_time` (time) - 開始時間
       - `end_time` (time) - 終了時間
       - `is_available` (boolean) - 予約可能かどうか
@@ -20,7 +20,7 @@
 CREATE TABLE IF NOT EXISTS schedules (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   counselor_id uuid REFERENCES counselors(id) ON DELETE CASCADE,
-  day_of_week integer NOT NULL CHECK (day_of_week >= 0 AND day_of_week <= 6),
+  date date NOT NULL,
   start_time time NOT NULL,
   end_time time NOT NULL,
   is_available boolean DEFAULT true,

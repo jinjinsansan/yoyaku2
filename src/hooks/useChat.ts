@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { ChatRoom, ChatMessage } from '../types';
 import { useAuth } from './useAuth';
@@ -10,7 +10,7 @@ export const useChat = (bookingId?: string) => {
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const { user } = useAuth();
-  const subscriptionRef = useRef<any>(null);
+  const subscriptionRef = useRef<{ unsubscribe: () => void } | null>(null);
 
   useEffect(() => {
     if (bookingId && user) {
@@ -22,14 +22,15 @@ export const useChat = (bookingId?: string) => {
         subscriptionRef.current.unsubscribe();
       }
     };
-  }, [bookingId, user]);
+  }, [bookingId, user, initializeChat]);
 
-  const initializeChat = async (id: string) => {
+  const initializeChat = useCallback(async (id: string) => {
     try {
       setLoading(true);
       
       // チャットルームを取得または作成
-      let { data: existingRoom, error: roomError } = await supabase
+      let existingRoom;
+      const { data: roomData, error: roomError } = await supabase
         .from('chat_rooms')
         .select(`
           *,
@@ -44,6 +45,8 @@ export const useChat = (bookingId?: string) => {
         `)
         .eq('booking_id', id)
         .single();
+
+      existingRoom = roomData;
 
       if (roomError && roomError.code !== 'PGRST116') {
         throw roomError;
@@ -141,12 +144,13 @@ export const useChat = (bookingId?: string) => {
       // リアルタイム購読を開始
       subscribeToMessages(formattedRoom.id);
       
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'チャットの初期化に失敗しました';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const fetchMessages = async (roomId: string) => {
     try {
@@ -180,8 +184,9 @@ export const useChat = (bookingId?: string) => {
       }));
 
       setMessages(formattedMessages);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'メッセージの取得に失敗しました';
+      setError(errorMessage);
     }
   };
 
@@ -250,8 +255,9 @@ export const useChat = (bookingId?: string) => {
 
       if (error) throw error;
       
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'メッセージの送信に失敗しました';
+      setError(errorMessage);
       throw err;
     } finally {
       setSending(false);
@@ -275,7 +281,7 @@ export const useChat = (bookingId?: string) => {
         .getPublicUrl(filePath);
 
       return data.publicUrl;
-    } catch (err: any) {
+    } catch {
       throw new Error('ファイルのアップロードに失敗しました');
     }
   };

@@ -39,8 +39,9 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
       // フォームリセット
       setRating(0);
       setComment('');
-    } catch (err: any) {
-      setError(err.message || 'レビューの投稿に失敗しました');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'レビューの投稿に失敗しました';
+      setError(errorMessage);
     }
   };
 

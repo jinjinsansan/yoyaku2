@@ -72,7 +72,7 @@ export const auth = {
   },
 
   // セッション監視
-  onAuthStateChange: (callback: (event: string, session: any) => void) => {
+  onAuthStateChange: (callback: (event: string, session: unknown) => void) => {
     return supabase.auth.onAuthStateChange(callback);
   }
 };

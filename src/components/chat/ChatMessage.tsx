@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, FileText, Image as ImageIcon } from 'lucide-react';
+import { Download, FileText } from 'lucide-react';
 import { ChatMessage as ChatMessageType } from '../../types';
 import { formatTime } from '../../lib/utils';
 

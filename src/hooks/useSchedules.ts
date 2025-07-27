@@ -16,6 +16,7 @@ export const useSchedules = (counselorId?: string, selectedDate?: Date) => {
   const fetchSchedules = async (id: string, date?: Date) => {
     try {
       setLoading(true);
+      console.log('useSchedules: スケジュール取得開始:', id);
       
       let query = supabase
         .from('schedules')
@@ -40,6 +41,8 @@ export const useSchedules = (counselorId?: string, selectedDate?: Date) => {
       }
 
       const { data, error } = await query.order('date, start_time');
+
+      console.log('useSchedules: スケジュール取得レスポンス:', { data, error });
 
       if (error) throw error;
 
@@ -79,9 +82,12 @@ export const useSchedules = (counselorId?: string, selectedDate?: Date) => {
         isAvailable: schedule.is_available
       }));
 
+      console.log('useSchedules: フォーマット後のスケジュール:', formattedSchedules);
       setSchedules(formattedSchedules);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'スケジュールの取得に失敗しました';
+      console.error('useSchedules: スケジュール取得エラー:', err);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

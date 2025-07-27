@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, Menu, User, LogOut, MessageCircle, X, ChevronDown } from 'lucide-react';
-import { Button } from '../ui/Button';
+import { Heart, Menu, User, LogOut, MessageCircle, X } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 
 interface HeaderProps {
-  onMenuClick?: () => void;
   onAuthClick?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onMenuClick, onAuthClick }) => {
+export const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
   const { user, signOut, isAuthenticated } = useAuth();
   const [isCounselor, setIsCounselor] = useState<boolean | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(80); // デフォルト80px (h-20)
 
   // カウンセラー判定: counselorsテーブルに自分のuser_idが存在するか
   useEffect(() => {
@@ -41,20 +42,37 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onAuthClick }) => {
 
   const handleAuthAction = async () => {
     if (isAuthenticated) {
-      await signOut();
+      setShowLogoutConfirm(true);
     } else {
       onAuthClick?.();
     }
   };
 
+  const handleLogoutConfirm = async () => {
+    await signOut();
+  };
+
   const handleMobileMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
-    onMenuClick?.();
   };
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
+
+  // ヘッダーの高さを動的に計算
+  useEffect(() => {
+    const headerElement = document.querySelector('header');
+    if (headerElement) {
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          setHeaderHeight(entry.contentRect.height);
+        }
+      });
+      resizeObserver.observe(headerElement);
+      return () => resizeObserver.disconnect();
+    }
+  }, [isAuthenticated, user]);
 
   return (
     <>
@@ -284,7 +302,19 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, onAuthClick }) => {
       )}
 
       {/* ヘッダーの高さ分のスペーサー */}
-      <div className="h-20"></div>
+      <div style={{ height: `${headerHeight}px` }}></div>
+
+      {/* ログアウト確認ダイアログ */}
+      <ConfirmDialog
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={handleLogoutConfirm}
+        title="ログアウトの確認"
+        message="本当にログアウトしますか？"
+        confirmText="ログアウト"
+        cancelText="キャンセル"
+        type="confirm"
+      />
     </>
   );
 };
