@@ -47,22 +47,22 @@ export const useSchedules = (counselorId?: string, selectedDate?: Date) => {
       if (error) throw error;
 
       const formattedSchedules: Schedule[] = data
-        .filter(schedule => schedule.counselor && schedule.counselor.user) // nullチェック
+        .filter(schedule => schedule.counselor) // カウンセラーが存在するかチェック
         .map(schedule => ({
           id: schedule.id,
           counselorId: schedule.counselor_id,
           counselor: {
             id: schedule.counselor?.id || '',
             userId: schedule.counselor?.user_id || '',
-            user: {
-              id: schedule.counselor.user?.id || '',
-              email: schedule.counselor.user?.email || '',
-              name: schedule.counselor.user?.name || '',
-              phone: schedule.counselor.user?.phone || '',
-              avatar: schedule.counselor.user?.avatar || '',
-              createdAt: new Date(schedule.counselor.user?.created_at || Date.now()),
-              updatedAt: new Date(schedule.counselor.user?.updated_at || Date.now())
-            },
+            user: schedule.counselor.user ? {
+              id: schedule.counselor.user.id || '',
+              email: schedule.counselor.user.email || '',
+              name: schedule.counselor.user.name || '',
+              phone: schedule.counselor.user.phone || '',
+              avatar: schedule.counselor.user.avatar || '',
+              createdAt: new Date(schedule.counselor.user.created_at || Date.now()),
+              updatedAt: new Date(schedule.counselor.user.updated_at || Date.now())
+            } : null,
           profileImage: schedule.counselor.profile_image,
           bio: schedule.counselor.bio,
           specialties: Array.isArray(schedule.counselor.specialties) && schedule.counselor.specialties.length > 0 

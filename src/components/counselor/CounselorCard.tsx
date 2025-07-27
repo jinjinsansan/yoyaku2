@@ -21,7 +21,7 @@ export const CounselorCard: React.FC<CounselorCardProps> = ({ counselor, onSelec
             {counselor.profileImage ? (
               <img 
                 src={counselor.profileImage} 
-                alt={counselor.user.name}
+                alt={counselor.user?.name || 'カウンセラー'}
                 className="w-16 h-16 rounded-full object-cover"
               />
             ) : (
@@ -30,7 +30,7 @@ export const CounselorCard: React.FC<CounselorCardProps> = ({ counselor, onSelec
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-semibold text-slate-800 truncate">
-              {counselor.user.name}
+              {counselor.user?.name || 'カウンセラー'}
             </h3>
             <div className="flex items-center space-x-2 mt-1">
               <div className="flex items-center">

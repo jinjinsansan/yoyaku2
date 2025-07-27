@@ -13,7 +13,7 @@ export interface User {
 export interface Counselor {
   id: string;
   userId: string;
-  user: User;
+  user: User | null;
   profileImage?: string;
   bio: string;
   specialties: string[];

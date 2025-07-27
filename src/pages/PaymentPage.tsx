@@ -183,7 +183,7 @@ export const PaymentPage: React.FC = () => {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-slate-600">カウンセラー</span>
-                <span className="font-medium">{booking.counselor.user.name}さん</span>
+                <span className="font-medium">{booking.counselor.user?.name || 'カウンセラー'}さん</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600">サービス</span>

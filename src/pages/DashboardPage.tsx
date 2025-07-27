@@ -204,7 +204,7 @@ export const DashboardPage: React.FC = () => {
                           <div className="flex-1">
                             <div className="flex items-center space-x-3 mb-2">
                               <h3 className="text-lg font-semibold text-slate-800">
-                                {booking.counselor.user.name}さんとのカウンセリング
+                                {booking.counselor.user?.name || 'カウンセラー'}さんとのカウンセリング
                               </h3>
                               {getStatusBadge(booking.status)}
                             </div>
@@ -295,7 +295,7 @@ export const DashboardPage: React.FC = () => {
                           <div className="flex-1">
                             <div className="flex items-center space-x-3 mb-2">
                               <h3 className="font-semibold text-slate-800">
-                                {payment.booking.counselor.user.name}さんへの決済
+                                {payment.booking.counselor.user?.name || 'カウンセラー'}さんへの決済
                               </h3>
                               {getPaymentStatusBadge(payment.status)}
                             </div>
@@ -409,7 +409,7 @@ export const DashboardPage: React.FC = () => {
         >
           {selectedBooking && (
             <ReviewForm
-              counselorName={selectedBooking.counselor.user.name}
+                              counselorName={selectedBooking.counselor.user?.name || 'カウンセラー'}
               onSubmit={handleReviewSubmit}
               loading={reviewLoading}
             />

@@ -97,7 +97,7 @@ export const CounselorDetailPage: React.FC = () => {
                   {counselor.profileImage ? (
                     <img 
                       src={counselor.profileImage} 
-                      alt={counselor.user.name}
+                      alt={counselor.user?.name || 'カウンセラー'}
                       className="w-24 h-24 rounded-full object-cover"
                     />
                   ) : (
@@ -106,7 +106,7 @@ export const CounselorDetailPage: React.FC = () => {
                 </div>
                 <div className="flex-1">
                   <h1 className="text-2xl font-bold text-slate-800 mb-2">
-                    {counselor.user.name}
+                    {counselor.user?.name || 'カウンセラー'}
                   </h1>
                   <div className="flex items-center space-x-4 mb-3">
                     <div className="flex items-center">

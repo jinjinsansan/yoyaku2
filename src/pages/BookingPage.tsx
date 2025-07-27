@@ -166,7 +166,7 @@ export const BookingPage: React.FC = () => {
             予約可能な時間がありません
           </h2>
           <p className="text-slate-600 mb-6">
-            {counselor.user.name}さんは現在予約を受け付けていません。
+            {counselor.user?.name || 'カウンセラー'}さんは現在予約を受け付けていません。
             他のカウンセラーをお探しください。
           </p>
           <div className="space-y-3">
@@ -207,7 +207,7 @@ export const BookingPage: React.FC = () => {
 
         {/* 予約フォーム */}
         <BookingForm
-          counselorName={counselor.user.name}
+                        counselorName={counselor.user?.name || 'カウンセラー'}
           counselorId={counselor.id}
           schedules={schedules}
           onSubmit={handleBookingSubmit}
