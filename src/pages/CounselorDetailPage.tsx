@@ -14,6 +14,7 @@ import {
 import { useCounselor } from '../hooks/useCounselor';
 import { useSchedules } from '../hooks/useSchedules';
 import { useReviews } from '../hooks/useReviews';
+import { useAuth } from '../hooks/useAuth';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -24,6 +25,7 @@ import { formatCurrency } from '../lib/utils';
 export const CounselorDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const { counselor, loading: counselorLoading, error } = useCounselor(id!);
   const { schedules, loading: schedulesLoading } = useSchedules(id);
   const { reviews, loading: reviewsLoading, error: reviewsError } = useReviews(id);
@@ -159,11 +161,13 @@ export const CounselorDetailPage: React.FC = () => {
               </div>
             </Card>
 
-            {/* スケジュール */}
-            <CounselorSchedule 
-              counselorId={counselor.id}
-              schedules={schedules}
-            />
+            {/* スケジュール - ログイン時のみ表示 */}
+            {isAuthenticated && (
+              <CounselorSchedule 
+                counselorId={counselor.id}
+                schedules={schedules}
+              />
+            )}
 
             {/* レビュー・評価 */}
             <Card>
@@ -189,21 +193,37 @@ export const CounselorDetailPage: React.FC = () => {
                 カウンセリング予約
               </h3>
               <div className="space-y-3">
-                <Button 
-                  className="w-full"
-                  onClick={() => navigate(`/booking/${counselor.id}`)}
-                >
-                  <Calendar className="w-4 h-4 mr-2" />
-                  予約する
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => navigate('/counselors')}
-                >
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  他のカウンセラーも見る
-                </Button>
+                {isAuthenticated ? (
+                  <>
+                    <Button 
+                      className="w-full"
+                      onClick={() => navigate(`/booking/${counselor.id}`)}
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      予約する
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => navigate('/counselors')}
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      他のカウンセラーも見る
+                    </Button>
+                  </>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-slate-600 mb-3">予約するにはログインが必要です</p>
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => navigate('/counselors')}
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      他のカウンセラーも見る
+                    </Button>
+                  </div>
+                )}
               </div>
             </Card>
 

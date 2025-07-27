@@ -3,6 +3,7 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { supabase } from '../../lib/supabase';
 import { Calendar, Clock, Check, X } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 interface CounselorScheduleProps {
   counselorId: string;
@@ -26,6 +27,7 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
   selectedTime,
   schedules: externalSchedules,
 }) => {
+  const { isAuthenticated } = useAuth();
   const [schedules, setSchedules] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentWeek, setCurrentWeek] = useState(new Date());
@@ -70,6 +72,11 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
   }, [counselorId]);
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
     if (externalSchedules) {
       // 外部からスケジュールが渡された場合
       const formattedSchedules: TimeSlot[] = externalSchedules.map(schedule => ({
@@ -84,7 +91,7 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
       // 内部でスケジュールを取得
       fetchSchedules();
     }
-  }, [counselorId, externalSchedules, fetchSchedules]);
+  }, [counselorId, externalSchedules, fetchSchedules, isAuthenticated]);
 
   const getSchedulesForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
@@ -147,6 +154,17 @@ export const CounselorSchedule: React.FC<CounselorScheduleProps> = ({
     const selectedDateStr = selectedDate.toISOString().split('T')[0];
     return selectedDateStr === date && selectedTime === startTime;
   };
+
+  if (!isAuthenticated) {
+    return (
+      <Card className="p-6">
+        <div className="text-center text-slate-500">
+          <Calendar className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+          <p>スケジュールを表示するにはログインが必要です</p>
+        </div>
+      </Card>
+    );
+  }
 
   if (loading) {
     return (
