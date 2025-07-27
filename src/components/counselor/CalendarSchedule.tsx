@@ -16,7 +16,7 @@ interface CalendarScheduleProps {
 }
 
 export const CalendarSchedule: React.FC<CalendarScheduleProps> = ({ counselorId }) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 0, 1)); // 2025年1月から開始
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(false);

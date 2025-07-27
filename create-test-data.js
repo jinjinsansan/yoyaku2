@@ -58,7 +58,7 @@ async function createTestData() {
       const user = existingUsers[i];
       const counselor = existingCounselors[i];
 
-      console.log(`予約作成: ${user.email} と ${(counselor.user as { email?: string })?.email}`);
+      console.log(`予約作成: ${user.email} と ${counselor.user?.email}`);
 
       // 予約を作成
       const { data: booking, error: bookingError } = await supabase
@@ -81,7 +81,7 @@ async function createTestData() {
       }
 
       testBookings.push(booking);
-      console.log(`予約作成成功: ${user.email} と ${(counselor.user as { email?: string })?.email}`);
+      console.log(`予約作成成功: ${user.email} と ${counselor.user?.email}`);
 
       // チャットルームを作成
       const { data: chatRoom, error: chatRoomError } = await supabase
