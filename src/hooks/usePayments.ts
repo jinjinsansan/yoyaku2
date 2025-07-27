@@ -13,7 +13,7 @@ export const usePayments = () => {
     if (user) {
       fetchPayments();
     }
-  }, [user, fetchPayments]);
+  }, [user]);
 
   const fetchPayments = useCallback(async () => {
     if (!user) return;

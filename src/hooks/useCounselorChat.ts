@@ -271,7 +271,7 @@ export const useCounselorChat = () => {
 
   useEffect(() => {
     fetchChatRooms();
-  }, [fetchChatRooms]);
+  }, []);
 
   return {
     chatRooms,
