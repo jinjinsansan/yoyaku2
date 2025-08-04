@@ -108,6 +108,22 @@ export const useAdvancedAnalytics = (counselorId?: string) => {
       }
     } catch (err) {
       console.error('Realtime KPI fetch error:', err);
+      // テーブルが存在しない場合のデフォルト値
+      setRealtimeKPI({
+        metricDate: new Date(),
+        metricHour: new Date().getHours(),
+        totalActiveBookings: 0,
+        totalRevenueToday: 0,
+        averageSessionRating: 0,
+        totalCompletedSessionsToday: 0,
+        totalCancelledSessionsToday: 0,
+        newUserRegistrations: 0,
+        activeUsersLastHour: 0,
+        activeCounselors: 0,
+        totalAvailableSlots: 0,
+        occupiedSlots: 0,
+        counselorUtilizationRate: 0
+      });
       return null;
     }
   };

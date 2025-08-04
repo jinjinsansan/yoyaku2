@@ -52,7 +52,15 @@ export const useSchedule = (counselorId?: string) => {
         .order('date')
         .order('start_time');
 
-      if (scheduleError) throw scheduleError;
+      if (scheduleError) {
+        console.error('Schedule fetch error:', scheduleError);
+        // テーブルが存在しない場合は空配列を返す
+        if (scheduleError.code === 'PGRST116' || scheduleError.message?.includes('does not exist')) {
+          setTimeSlots([]);
+          return;
+        }
+        throw scheduleError;
+      }
 
       // 予約データも取得して予約済み時間をマーク
       let bookingQuery = supabase

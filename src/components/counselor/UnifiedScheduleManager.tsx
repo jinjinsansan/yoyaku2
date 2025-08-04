@@ -108,13 +108,13 @@ export const UnifiedScheduleManager: React.FC<UnifiedScheduleManagerProps> = ({
   // 特定日のスケジュール取得
   const getDaySchedule = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
-    return schedule.filter(s => s.date === dateStr);
+    return schedule?.filter(s => s.date === dateStr) || [];
   };
 
   // スケジュール作成・更新
   const handleScheduleUpdate = async (date: string, time: string, isAvailable: boolean) => {
     try {
-      const existingSlot = schedule.find(s => s.date === date && s.time_slot === time);
+      const existingSlot = schedule?.find(s => s.date === date && s.time_slot === time);
       
       if (existingSlot) {
         await updateSchedule(existingSlot.id, { is_available: isAvailable });
