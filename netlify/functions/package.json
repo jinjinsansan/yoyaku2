@@ -1,9 +1,10 @@
 {
   "name": "netlify-functions",
   "version": "1.0.0",
-  "description": "Netlify Functions for email sending",
+  "description": "Netlify Functions for email sending and reminders",
   "main": "send-email.js",
   "dependencies": {
-    "nodemailer": "^6.9.7"
+    "nodemailer": "^6.9.7",
+    "@supabase/supabase-js": "^2.38.0"
   }
 } 

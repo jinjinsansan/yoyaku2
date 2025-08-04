@@ -8,4 +8,13 @@
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
-  status = 200 
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# リマインダーメールの定期実行設定（15分間隔）
+# Note: Netlify Scheduled Functionsを使用する場合は
+# 管理画面での設定またはNetlify CLIでのデプロイが必要 
