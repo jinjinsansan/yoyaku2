@@ -42,10 +42,10 @@ export const Footer: React.FC = () => {
           <div>
             <h4 className="font-semibold mb-4">サービス</h4>
             <ul className="space-y-2 text-slate-300">
-              <li><a href="#" className="hover:text-white transition-colors">個人カウンセリング</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">オンラインチャット</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">グループセッション</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">緊急サポート</a></li>
+              <li><button onClick={() => window.location.href = '/counselors'} className="hover:text-white transition-colors text-left">個人カウンセリング</button></li>
+              <li><button onClick={() => window.location.href = '/counselors'} className="hover:text-white transition-colors text-left">オンラインチャット</button></li>
+              <li><button onClick={() => window.location.href = '/counselors'} className="hover:text-white transition-colors text-left">月次コース</button></li>
+              <li><button onClick={() => window.open('https://c14fioph.autosns.app/line', '_blank')} className="hover:text-white transition-colors text-left">緊急サポート</button></li>
             </ul>
           </div>
 
@@ -53,16 +53,16 @@ export const Footer: React.FC = () => {
           <div>
             <h4 className="font-semibold mb-4">サポート</h4>
             <ul className="space-y-2 text-slate-300">
-              <li><a href="#" className="hover:text-white transition-colors">よくある質問</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">お問い合わせ</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">利用規約</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">プライバシーポリシー</a></li>
+              <li><button onClick={() => window.location.href = '/'} className="hover:text-white transition-colors text-left">よくある質問</button></li>
+              <li><button onClick={() => window.open('https://c14fioph.autosns.app/line', '_blank')} className="hover:text-white transition-colors text-left">お問い合わせ</button></li>
+              <li><button onClick={() => window.location.href = '/'} className="hover:text-white transition-colors text-left">利用規約</button></li>
+              <li><button onClick={() => window.location.href = '/'} className="hover:text-white transition-colors text-left">プライバシーポリシー</button></li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-slate-700 mt-8 pt-8 text-center text-slate-400">
-          <p>&copy; 2025 心理カウンセリング. All rights reserved.</p>
+          <p>&copy; 2025 一般社団法人NAMIDAサポート協会. All rights reserved.</p>
         </div>
       </div>
     </footer>

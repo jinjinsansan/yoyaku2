@@ -22,7 +22,15 @@ export function formatDate(date: Date): string {
   }).format(date);
 }
 
-export function formatTime(date: Date): string {
+export function formatTime(date: Date | string): string {
+  if (typeof date === 'string') {
+    // HH:MM format string
+    if (date.match(/^\d{2}:\d{2}$/)) {
+      return date;
+    }
+    // Parse string as Date
+    date = new Date(date);
+  }
   return new Intl.DateTimeFormat('ja-JP', {
     hour: '2-digit',
     minute: '2-digit',

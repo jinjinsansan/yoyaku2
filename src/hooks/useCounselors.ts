@@ -76,6 +76,13 @@ export const useCounselors = () => {
             isActive: counselor.is_active,
             rating: counselor.rating,
             reviewCount: counselor.review_count,
+            region: counselor.region || 'オンライン',
+            sessionType: counselor.session_type || 'both',
+            experienceYears: counselor.experience_years || 0,
+            credentials: Array.isArray(counselor.credentials) ? counselor.credentials : [],
+            languages: Array.isArray(counselor.languages) ? counselor.languages : ['日本語'],
+            introductionVideoUrl: counselor.introduction_video_url || undefined,
+            availabilityStatus: counselor.availability_status || 'available',
             createdAt: new Date(counselor.created_at),
             updatedAt: new Date(counselor.updated_at)
           };

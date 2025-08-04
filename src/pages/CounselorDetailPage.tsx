@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   Star, 
   Clock, 
@@ -20,11 +20,14 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { ReviewList } from '../components/review/ReviewList';
 import { CounselorSchedule } from '../components/counselor/CounselorSchedule';
+import { CounselorProfile } from '../components/counselor/CounselorProfile';
 import { formatCurrency } from '../lib/utils';
 
 export const CounselorDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get('mode'); // 'chat' または 'payment'
   const { user, isAuthenticated } = useAuth();
   const { counselor, loading: counselorLoading, error } = useCounselor(id!);
   const { schedules, loading: schedulesLoading } = useSchedules(id);
@@ -91,86 +94,14 @@ export const CounselorDetailPage: React.FC = () => {
           {/* メイン情報 */}
           <div className="lg:col-span-2 space-y-6">
             {/* プロフィール */}
-            <Card>
-              <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-6">
-                <div className="w-24 h-24 bg-gradient-to-br from-indigo-100 to-violet-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  {counselor.profileImage ? (
-                    <img 
-                      src={counselor.profileImage} 
-                      alt={counselor.user?.name || 'カウンセラー'}
-                      className="w-24 h-24 rounded-full object-cover"
-                    />
-                  ) : (
-                    <Users className="w-12 h-12 text-indigo-600" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <h1 className="text-2xl font-bold text-slate-800 mb-2">
-                    {counselor.user?.name || 'カウンセラー'}
-                  </h1>
-                  <div className="flex items-center space-x-4 mb-3">
-                    <div className="flex items-center">
-                      <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                      <span className="text-lg font-semibold text-slate-700 ml-1">
-                        {counselor.rating.toFixed(1)}
-                      </span>
-                      <span className="text-slate-500 ml-1">
-                        ({counselor.reviewCount}件のレビュー)
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center text-slate-600 mb-4">
-                    <Clock className="w-5 h-5 mr-2" />
-                    <span className="text-lg font-medium">
-                      {formatCurrency(counselor.hourlyRate)}/時間
-                    </span>
-                  </div>
-                  {counselor.profileUrl && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => window.open(counselor.profileUrl, '_blank')}
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      プロフィールサイト
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </Card>
-
-            {/* 専門分野 */}
-            <Card>
-              <h2 className="text-xl font-semibold text-slate-800 mb-4">専門分野</h2>
-              <div className="flex flex-wrap gap-2">
-                {counselor.specialties.map((specialty, index) => (
-                  <Badge key={index} variant="info">
-                    {specialty}
-                  </Badge>
-                ))}
-              </div>
-            </Card>
-
-            {/* 自己紹介 */}
-            <Card>
-              <h2 className="text-xl font-semibold text-slate-800 mb-4">自己紹介</h2>
-              <div className="prose prose-slate max-w-none">
-                <p className="text-slate-600 leading-relaxed whitespace-pre-line">
-                  {counselor.bio}
-                </p>
-              </div>
-            </Card>
+            <CounselorProfile counselor={counselor} showFullProfile={true} />
 
             {/* スケジュール - ログイン時のみ表示 */}
             {isAuthenticated && (
               <CounselorSchedule 
                 counselorId={counselor.id}
-                schedules={schedules}
               />
             )}
-
-            {/* スケジュール */}
-            <CounselorSchedule counselorId={counselor.id} />
 
             {/* レビュー・評価 */}
             <Card>
@@ -193,36 +124,48 @@ export const CounselorDetailPage: React.FC = () => {
             {/* 予約アクション */}
             <Card>
               <h3 className="text-lg font-semibold text-slate-800 mb-4">
-                カウンセリング予約
+                {mode === 'payment' ? '決済・予約を完了' : 'チャット・予約'}
               </h3>
               <div className="space-y-3">
                 {isAuthenticated ? (
                   <>
-                    <Button 
-                      className="w-full"
-                      onClick={() => navigate(`/booking/${counselor.id}`)}
-                    >
-                      <Calendar className="w-4 h-4 mr-2" />
-                      予約する
-                    </Button>
+                    {mode === 'payment' ? (
+                      <Button 
+                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                        onClick={() => navigate(`/booking/${counselor.id}`)}
+                      >
+                        <Calendar className="w-4 h-4 mr-2" />
+                        決済・予約を完了する
+                      </Button>
+                    ) : (
+                      <Button 
+                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                        onClick={() => navigate(`/booking/${counselor.id}`)}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        チャット予約をする
+                      </Button>
+                    )}
                     <Button 
                       variant="outline" 
                       className="w-full"
-                      onClick={() => navigate('/counselors')}
+                      onClick={() => navigate(`/counselors?mode=${mode || 'chat'}`)}
                     >
-                      <MessageCircle className="w-4 h-4 mr-2" />
+                      <Users className="w-4 h-4 mr-2" />
                       他のカウンセラーも見る
                     </Button>
                   </>
                 ) : (
                   <div className="text-center py-4">
-                    <p className="text-slate-600 mb-3">予約するにはログインが必要です</p>
+                    <p className="text-slate-600 mb-3">
+                      {mode === 'payment' ? '決済するにはログインが必要です' : 'チャットするにはログインが必要です'}
+                    </p>
                     <Button 
                       variant="outline" 
                       className="w-full"
-                      onClick={() => navigate('/counselors')}
+                      onClick={() => navigate(`/counselors?mode=${mode || 'chat'}`)}
                     >
-                      <MessageCircle className="w-4 h-4 mr-2" />
+                      <Users className="w-4 h-4 mr-2" />
                       他のカウンセラーも見る
                     </Button>
                   </div>

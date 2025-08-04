@@ -10,6 +10,9 @@ export interface User {
 }
 
 // カウンセラー関連の型定義
+export type SessionType = 'online' | 'in_person' | 'both';
+export type AvailabilityStatus = 'available' | 'busy' | 'unavailable';
+
 export interface Counselor {
   id: string;
   userId: string;
@@ -22,6 +25,13 @@ export interface Counselor {
   isActive: boolean;
   rating: number;
   reviewCount: number;
+  region: string;
+  sessionType: SessionType;
+  experienceYears: number;
+  credentials: string[];
+  languages: string[];
+  introductionVideoUrl?: string;
+  availabilityStatus: AvailabilityStatus;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -137,4 +147,32 @@ export interface PaginatedResponse<T> {
     total: number;
     totalPages: number;
   };
+}
+
+// お気に入りカウンセラー型
+export interface FavoriteCounselor {
+  id: string;
+  userId: string;
+  counselorId: string;
+  counselor: Counselor;
+  createdAt: Date;
+}
+
+// フィルタリング用の型
+export interface CounselorFilters {
+  searchTerm: string;
+  specialties: string[];
+  minPrice: number;
+  maxPrice: number;
+  minRating: number;
+  regions: string[];
+  sessionTypes: SessionType[];
+  availabilityStatus: AvailabilityStatus[];
+  languages: string[];
+  experienceYears: {
+    min: number;
+    max: number;
+  };
+  onlyFavorites: boolean;
+  sortBy: 'rating' | 'price_asc' | 'price_desc' | 'experience' | 'newest';
 }

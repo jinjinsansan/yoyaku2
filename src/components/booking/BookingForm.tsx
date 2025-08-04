@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
-import { MessageSquare, CreditCard } from 'lucide-react';
+import { MessageSquare, CreditCard, Calendar, Clock } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Textarea } from '../ui/Textarea';
 import { ServiceSelector } from './ServiceSelector';
-import { DateTimeSelector } from './DateTimeSelector';
-import { ServiceType, Schedule } from '../../types';
+import { CounselorSchedule } from '../counselor/CounselorSchedule';
+import { MultiDateSelector } from '../calendar/MultiDateSelector';
+import { ServiceType } from '../../types';
+import { TimeSlot } from '../../hooks/useSchedule';
 import { SERVICES } from '../../constants/services';
 import { formatCurrency, formatDate } from '../../lib/utils';
 
 interface BookingFormProps {
   counselorName: string;
   counselorId: string;
-  schedules: Schedule[];
+  timeSlots: TimeSlot[];
   onSubmit: (bookingData: {
     serviceType: ServiceType;
     scheduledAt: Date;
@@ -25,28 +27,46 @@ interface BookingFormProps {
 export const BookingForm: React.FC<BookingFormProps> = ({
   counselorName,
   counselorId,
-  schedules,
+  timeSlots,
   onSubmit,
   loading = false
 }) => {
   const [selectedService, setSelectedService] = useState<ServiceType | null>(null);
-  const [selectedDateTime, setSelectedDateTime] = useState<Date | null>(null);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot | null>(null);
   const [notes, setNotes] = useState('');
+  const [viewMode, setViewMode] = useState<'single' | 'multi'>('single');
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
 
   const selectedServiceData = selectedService 
     ? SERVICES.find(s => s.type === selectedService)
     : null;
 
-  const canSubmit = selectedService && selectedDateTime;
+  const canSubmit = selectedService && selectedTimeSlot;
+
+  const handleTimeSlotSelect = (timeSlot: TimeSlot) => {
+    setSelectedTimeSlot(timeSlot);
+  };
+
+  const getScheduledDateTime = (): Date | null => {
+    if (!selectedTimeSlot) return null;
+    
+    const [year, month, day] = selectedTimeSlot.date.split('-').map(Number);
+    const [hours, minutes] = selectedTimeSlot.startTime.split(':').map(Number);
+    
+    return new Date(year, month - 1, day, hours, minutes);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!canSubmit || !selectedServiceData) return;
 
+    const scheduledAt = getScheduledDateTime();
+    if (!scheduledAt) return;
+
     onSubmit({
       serviceType: selectedService,
-      scheduledAt: selectedDateTime,
+      scheduledAt,
       amount: selectedServiceData.price,
       notes: notes.trim() || undefined
     });
@@ -79,16 +99,49 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
       {/* 日時選択 */}
       {selectedService && (
-        <DateTimeSelector
-          schedules={schedules}
-          selectedDateTime={selectedDateTime}
-          onDateTimeSelect={setSelectedDateTime}
-          counselorId={counselorId}
-        />
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-slate-800">日時を選択してください</h3>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant={viewMode === 'single' ? 'primary' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('single')}
+              >
+                <Clock className="w-4 h-4 mr-1" />
+                単一日程
+              </Button>
+              <Button
+                variant={viewMode === 'multi' ? 'primary' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('multi')}
+              >
+                <Calendar className="w-4 h-4 mr-1" />
+                複数日程
+              </Button>
+            </div>
+          </div>
+
+          {viewMode === 'single' ? (
+            <CounselorSchedule
+              counselorId={counselorId}
+              onTimeSlotSelect={handleTimeSlotSelect}
+              selectedTimeSlot={selectedTimeSlot}
+            />
+          ) : (
+            <MultiDateSelector
+              timeSlots={timeSlots}
+              onDatesSelect={setSelectedDates}
+              onTimeSlotSelect={handleTimeSlotSelect}
+              selectedTimeSlot={selectedTimeSlot}
+              maxSelections={5}
+            />
+          )}
+        </div>
       )}
 
       {/* 相談内容・メモ */}
-      {selectedDateTime && (
+      {selectedTimeSlot && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-slate-800">相談内容・メモ（任意）</h3>
           <Textarea
@@ -115,7 +168,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({
             </div>
             <div className="flex justify-between">
               <span className="text-slate-600">日時</span>
-              <span className="font-medium">{formatDate(selectedDateTime)}</span>
+              <span className="font-medium">
+                {selectedTimeSlot && formatDate(getScheduledDateTime()!)}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-600">料金</span>

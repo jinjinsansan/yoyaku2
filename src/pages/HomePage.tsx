@@ -32,8 +32,8 @@ export const HomePage: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
                 size="lg" 
-                className="w-full sm:w-auto"
-                onClick={() => navigate('/counselors')}
+                className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                onClick={() => navigate('/counselors?mode=chat')}
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 カウンセラーとチャット
@@ -41,11 +41,11 @@ export const HomePage: React.FC = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="w-full sm:w-auto"
-                onClick={() => navigate('/counselors')}
+                className="w-full sm:w-auto border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50"
+                onClick={() => navigate('/counselors?mode=payment')}
               >
                 <CreditCard className="w-5 h-5 mr-2" />
-                カウンセラーを探す
+                決済へ進む
               </Button>
             </div>
           </div>
@@ -151,7 +151,7 @@ export const HomePage: React.FC = () => {
                   <Button 
                     variant={service.type === 'monthly' ? 'primary' : 'outline'} 
                     className="w-full"
-                    onClick={() => navigate('/counselors')}
+                    onClick={() => navigate('/counselors?mode=payment')}
                   >
                     このプランを選択
                   </Button>
@@ -179,7 +179,7 @@ export const HomePage: React.FC = () => {
             <Button 
               variant="secondary" 
               size="lg"
-              onClick={() => navigate('/counselors')}
+              onClick={() => navigate('/counselors?mode=chat')}
             >
               <MessageCircle className="w-5 h-5 mr-2" />
               無料相談を始める
@@ -188,7 +188,7 @@ export const HomePage: React.FC = () => {
               variant="outline" 
               size="lg" 
               className="border-white text-white hover:bg-white hover:text-indigo-600"
-              onClick={() => navigate('/counselors')}
+              onClick={() => navigate('/counselors?mode=payment')}
             >
               詳しく見る
             </Button>

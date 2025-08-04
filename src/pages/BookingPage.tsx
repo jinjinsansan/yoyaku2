@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { useCounselor } from '../hooks/useCounselor';
-import { useSchedules } from '../hooks/useSchedules';
+import { useSchedule, TimeSlot } from '../hooks/useSchedule';
 import { useBookings } from '../hooks/useBookings';
 import { useAuth } from '../hooks/useAuth';
-import { BookingForm } from '../components/booking/BookingForm';
+import { SimpleBookingForm } from '../components/booking/SimpleBookingForm';
 import { Button } from '../components/ui/Button';
 import { ServiceType } from '../types';
 
@@ -15,7 +15,7 @@ export const BookingPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const { counselor, loading: counselorLoading, error: counselorError } = useCounselor(id!);
-  const { schedules, loading: schedulesLoading } = useSchedules(id);
+  const { timeSlots, loading: schedulesLoading } = useSchedule(id);
   const { createBooking } = useBookings();
   const [bookingLoading, setBookingLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -157,7 +157,7 @@ export const BookingPage: React.FC = () => {
     );
   }
 
-  if (schedules.length === 0) {
+  if (timeSlots.length === 0) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
@@ -206,10 +206,10 @@ export const BookingPage: React.FC = () => {
         )}
 
         {/* 予約フォーム */}
-        <BookingForm
-                        counselorName={counselor.user?.name || 'カウンセラー'}
+        <SimpleBookingForm
+          counselorName={counselor.user?.name || 'カウンセラー'}
           counselorId={counselor.id}
-          schedules={schedules}
+          timeSlots={timeSlots}
           onSubmit={handleBookingSubmit}
           loading={bookingLoading}
         />
